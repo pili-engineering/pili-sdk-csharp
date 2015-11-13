@@ -424,7 +424,7 @@ namespace pili_sdk_csharp.pili
             }
             if (end != 0)
             {
-                json.Add("end", start);
+                json.Add("end", end);
             }
             json.Add("format", format);
 
