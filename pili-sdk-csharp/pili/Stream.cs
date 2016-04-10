@@ -236,7 +236,16 @@ namespace pili_sdk_csharp.pili
             public SaveAsResponse(JObject jsonObj)
             {
                 url = jsonObj["url"].ToString();
-                targetUrl = jsonObj["targetUrl"].ToString();
+                try
+                {
+                    targetUrl = jsonObj["targetUrl"].ToString();
+                    //
+
+                }
+                catch (System.NullReferenceException)
+                {
+                    // do nothing. ignore.
+                }
                 persistentId = jsonObj["persistentId"].ToString();
                 mJsonString = jsonObj.ToString();
             }
@@ -520,13 +529,9 @@ namespace pili_sdk_csharp.pili
 
         public virtual IDictionary<string, string> hlsPlaybackUrls(long start, long end)
         {
-            return API.hlsPlaybackUrl(this, start, end);
+            return API.hlsPlaybackUrl(this.mCredentials, this.id, start, end);
         }
-        public virtual IDictionary<string, string> hlsPlaybackUrls()
-        {
-            return API.hlsPlaybackUrl(this, -1, -1);
-        }
-
+        
         public virtual IDictionary<string, string> httpFlvLiveUrls()
         {
             return API.httpFlvLiveUrl(this);

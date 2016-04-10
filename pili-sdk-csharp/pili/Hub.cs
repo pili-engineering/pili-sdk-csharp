@@ -1,5 +1,4 @@
-﻿
-using StreamList = pili_sdk_csharp.pili.Stream.StreamList;
+﻿using StreamList = pili_sdk_csharp.pili.Stream.StreamList;
 using Credentials = pili_sdk_csharp.pili_qiniu.Credentials;
 using MessageConfig = pili_sdk_csharp.pili_common.MessageConfig;
 

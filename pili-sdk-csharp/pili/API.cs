@@ -399,10 +399,6 @@ namespace pili_sdk_csharp.pili
                 throw new PiliException(MessageConfig.ILLEGAL_FILE_NAME_EXCEPTION_MSG);
             }
 
-            if (!Utils.isArgNotEmpty(format))
-            {
-                throw new PiliException(MessageConfig.ILLEGAL_FORMAT_EXCEPTION_MSG);
-            }
 
             if (start < 0 || end < 0 || start > end)
             {
@@ -674,37 +670,21 @@ namespace pili_sdk_csharp.pili
 
         //Generate HLS playback URL
 
-        public static IDictionary<string, string> hlsPlaybackUrl(Stream stream, long startTime, long endTime)
+        public static IDictionary<string, string> hlsPlaybackUrl(Credentials credentials, String streamId, long startTime, long endTime)
         {
-            const string defaultScheme = "http";
+            long saveFile = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds) / 1000;
 
-            string url = string.Format("{0}://{1}/{2}/{3}", defaultScheme, stream.PlaybackHttpHost, stream.HubName, stream.Title);
-            string queryPara = null;
-            if (startTime > 0 && endTime > 0 && startTime < endTime)
-            {
-                queryPara = "?start=" + startTime + "&end=" + endTime;
-            }
-            else if (startTime == -1 && endTime == -1)
-            {
-                queryPara = "?start=" + startTime + "&end=" + endTime;
-            }
-            else
-            {
-                throw new PiliException(MessageConfig.ILLEGAL_TIME_MSG);
-            }
+            SaveAsResponse response = saveAs(credentials, streamId, saveFile.ToString(), null, startTime, endTime, null);
+
             IDictionary<string, string> dictionary = new Dictionary<string, string>();
-            dictionary[Stream.ORIGIN] = url + ".m3u8" + queryPara;
-            string[] profiles = stream.Profiles;
-            if (profiles != null)
+
+            if (response != null)
             {
-                foreach (string p in profiles)
-                {
-                    dictionary[p] = url + '@' + p + ".m3u8" + queryPara;
-                }
+                dictionary.Add(Stream.ORIGIN, response.Url);
             }
             return dictionary;
         }
-
+        
         public static IDictionary<string, string> httpFlvLiveUrl(Stream stream)
         {
             /* 
