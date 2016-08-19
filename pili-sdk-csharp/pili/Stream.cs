@@ -286,7 +286,7 @@ namespace pili_sdk_csharp.pili
             public SnapshotResponse(JObject jsonObj)
             {
                 targetUrl = jsonObj["targetUrl"].ToString();
-                persistentId = jsonObj["persistentId"].ToString();
+                persistentId = jsonObj.GetValue("persistentId") == null ? null : jsonObj["persistentId"].ToString();
                 mJsonString = jsonObj.ToString();
             }
 
