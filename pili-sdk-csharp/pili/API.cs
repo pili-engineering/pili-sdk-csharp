@@ -491,7 +491,7 @@ namespace pili_sdk_csharp.pili
             string urlStr = string.Format("{0}/streams/{1}/snapshot", API_BASE_URL, streamId);
             HttpWebResponse response = null;
             JObject json = new JObject();
-            json.Add("fileName", fileName);
+            json.Add("name", fileName);
             json.Add("format", format);
             if (time > 0)
             {
