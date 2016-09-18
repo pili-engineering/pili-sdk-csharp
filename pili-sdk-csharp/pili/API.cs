@@ -387,7 +387,7 @@ namespace pili_sdk_csharp.pili
         }
 
 
-        public static SaveAsResponse saveAs(Credentials credentials, string streamId, string fileName, string format, long start, long end, string notifyUrl)
+        public static SaveAsResponse saveAs(Credentials credentials, string streamId, string fileName, string format, long start, long end, string notifyUrl,string pipleline)
         {
             if (streamId == null)
             {
@@ -423,6 +423,11 @@ namespace pili_sdk_csharp.pili
                 json.Add("end", end);
             }
             json.Add("format", format);
+            if (pipleline!=""){
+
+                json.Add("pipleline", pipleline);
+            }
+           
 
             try
             {
@@ -674,7 +679,7 @@ namespace pili_sdk_csharp.pili
         {
             long saveFile = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds) / 1000;
 
-            SaveAsResponse response = saveAs(credentials, streamId, saveFile.ToString(), null, startTime, endTime, null);
+            SaveAsResponse response = saveAs(credentials, streamId, saveFile.ToString(), null, startTime, endTime, null,null);
 
             IDictionary<string, string> dictionary = new Dictionary<string, string>();
 
