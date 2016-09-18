@@ -10,3 +10,4 @@ F:\pili-sdk-csharp\pili-sdk-csharp\bin\Debug\Newtonsoft.Json.dll
 F:\pili-sdk-csharp\pili-sdk-csharp\bin\Debug\Newtonsoft.Json.xml
 F:\pili-sdk-csharp\pili-sdk-csharp\obj\Debug\pili-sdk-csharp.dll
 F:\pili-sdk-csharp\pili-sdk-csharp\obj\Debug\pili-sdk-csharp.pdb
+F:\pili-sdk-csharp\pili-sdk-csharp\obj\Debug\pili-sdk-csharp.csprojResolveAssemblyReference.cache

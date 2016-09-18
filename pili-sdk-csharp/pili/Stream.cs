@@ -549,23 +549,23 @@ namespace pili_sdk_csharp.pili
         }
 
 
-        public virtual SaveAsResponse saveAs(string fileName, string format, long startTime, long endTime, string notifyUrl)
+        public virtual SaveAsResponse saveAs(string fileName, string format, long startTime, long endTime, string notifyUrl,string pipleline)
         {
-            return API.saveAs(mCredentials, this.id, fileName, format, startTime, endTime, notifyUrl);
+            return API.saveAs(mCredentials, this.id, fileName, format, startTime, endTime, notifyUrl,pipleline);
         }
 
         public virtual SaveAsResponse saveAs(string fileName, string format, long startTime, long endTime)
         {
-            return saveAs(fileName, format, startTime, endTime, null);
+            return saveAs(fileName, format, startTime, endTime, null,null);
         }
 
-        public virtual SaveAsResponse saveAs(string fileName, string format, string notifyUrl)
+        public virtual SaveAsResponse saveAs(string fileName, string format, string notifyUrl,string pipleline)
         {
-            return saveAs(fileName, format, 0, 0, notifyUrl);
+            return saveAs(fileName, format, 0, 0, notifyUrl,pipleline);
         }
         public virtual SaveAsResponse saveAs(string fileName, string format)
         {
-            return saveAs(fileName, format, 0, 0, null);
+            return saveAs(fileName, format, 0, 0, null,null);
         }
 
         public virtual SnapshotResponse snapshot(string name, string format)

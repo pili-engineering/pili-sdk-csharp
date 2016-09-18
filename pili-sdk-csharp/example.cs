@@ -138,9 +138,10 @@ namespace pili_sdk_csharp
             long saveAsStart = 1444897613; // required, in second, unix timestampstart:1444897613,end:1444897973
             long saveAsEnd = 1444897973; // required, in second, unix timestamp
             string saveAsNotifyUrl = null; // optional
+            string pipleline = null;
             try
             {
-                Stream.SaveAsResponse response = stream.saveAs(saveAsName, saveAsFormat, saveAsStart, saveAsEnd, saveAsNotifyUrl);
+                Stream.SaveAsResponse response = stream.saveAs(saveAsName, saveAsFormat, saveAsStart, saveAsEnd, saveAsNotifyUrl,pipleline);
                 Console.WriteLine("Stream saveAs()");
                 Console.WriteLine(response.ToString());
                 /*
