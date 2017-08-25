@@ -4,11 +4,11 @@ namespace pili_sdk_csharp.pili_common
 {
     public class UrlSafeBase64
     {
-        public static string encodeToString(string data)
+        public static string EncodeToString(string data)
         {
             try
             {
-                return encodeToString(data.GetBytes(Config.UTF8));
+                return EncodeToString(data.GetBytes(Config.Utf8));
             }
             catch (Exception e)
             {
@@ -18,14 +18,14 @@ namespace pili_sdk_csharp.pili_common
             return null;
         }
 
-        public static string encodeToString(byte[] data)
+        public static string EncodeToString(byte[] data)
         {
-            return Base64.encodeToString(data, Base64.URL_SAFE | Base64.NO_WRAP);
+            return Base64.EncodeToString(data, Base64.UrlSafe | Base64.NoWrap);
         }
 
-        public static byte[] decode(string data)
+        public static byte[] Decode(string data)
         {
-            return Base64.decode(data, Base64.URL_SAFE | Base64.NO_WRAP);
+            return Base64.Decode(data, Base64.UrlSafe | Base64.NoWrap);
         }
     }
 }

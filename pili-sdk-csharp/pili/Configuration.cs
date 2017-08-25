@@ -5,22 +5,21 @@ namespace pili_sdk_csharp.pili
 {
     public class Configuration
     {
-        internal string API_HOST = Config.DEFAULT_API_HOST;
-        internal string API_VERSION = Config.DEFAULT_API_VERSION;
+        public static readonly Configuration Instance = new Configuration();
+        internal string API_HOST = Config.DefaultAPIHost;
+        internal string API_VERSION = Config.DefaultAPIVersion;
 
-        internal bool USE_HTTPS = Config.DEFAULT_USE_HTTPS;
+        internal bool UseHttps = Config.DefaultUseHttps;
 
         private Configuration()
         {
         }
 
-        public static Configuration Instance => ConfigurationHolder.instance;
-
         public virtual string APIHost
         {
             set
             {
-                if (!Utils.isArgNotEmpty(value))
+                if (!Utils.IsArgNotEmpty(value))
                 {
                     throw new ArgumentException("Illegal API Host:" + value);
                 }
@@ -32,7 +31,7 @@ namespace pili_sdk_csharp.pili
         {
             set
             {
-                if (!Utils.isArgNotEmpty(value))
+                if (!Utils.IsArgNotEmpty(value))
                 {
                     throw new ArgumentException("Illegal API Version:" + value);
                 }
@@ -40,14 +39,9 @@ namespace pili_sdk_csharp.pili
             }
         }
 
-        public void setHttpsEnabled(bool enabled)
+        public void SetHttpsEnabled(bool enabled)
         {
-            USE_HTTPS = enabled;
-        }
-
-        private class ConfigurationHolder
-        {
-            public static readonly Configuration instance = new Configuration();
+            UseHttps = enabled;
         }
     }
 }

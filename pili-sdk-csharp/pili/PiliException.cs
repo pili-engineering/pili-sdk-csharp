@@ -8,13 +8,12 @@ namespace pili_sdk_csharp.pili
 {
     public class PiliException : Exception
     {
-        public readonly HttpWebResponse response;
-
-        private readonly string mDetails;
+        private readonly string _mDetails;
+        public readonly HttpWebResponse Response;
 
         public PiliException(HttpWebResponse response)
         {
-            this.response = response;
+            Response = response;
 
             try
             {
@@ -22,34 +21,34 @@ namespace pili_sdk_csharp.pili
                 var text = reader.ReadToEnd();
                 var jsonObj = JObject.Parse(text);
 
-                mDetails = Utils.JsonEncode(jsonObj);
+                _mDetails = Utils.JsonEncode(jsonObj);
             }
             catch (IOException e)
             {
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
-                mDetails += e.Message;
+                _mDetails += e.Message;
             }
         }
 
         public PiliException(string msg)
             : base(msg)
         {
-            response = null;
+            Response = null;
         }
 
         public PiliException(Exception e)
         {
-            response = null;
+            Response = null;
         }
 
-        public override string Message => response == null ? base.Message : response.ToString();
+        public override string Message => Response == null ? base.Message : Response.ToString();
 
-        public virtual string Details => mDetails;
+        public virtual string Details => _mDetails;
 
-        public virtual int code()
+        public virtual int Code()
         {
-            return response == null ? -1 : (int)response.StatusCode;
+            return Response == null ? -1 : (int)Response.StatusCode;
         }
     }
 }

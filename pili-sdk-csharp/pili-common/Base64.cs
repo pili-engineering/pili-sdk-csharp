@@ -40,26 +40,26 @@ namespace pili_sdk_csharp.pili_common
         /// <summary>
         ///     Default values for encoder/decoder flags.
         /// </summary>
-        public const int DEFAULT = 0;
+        public const int Default = 0;
 
         /// <summary>
         ///     Encoder flag bit to omit the padding '=' characters at the end
         ///     of the output (if any).
         /// </summary>
-        public const int NO_PADDING = 1;
+        public const int NoPadding = 1;
 
         /// <summary>
         ///     Encoder flag bit to omit all line terminators (i.e., the output
         ///     will be on one long line).
         /// </summary>
-        public const int NO_WRAP = 2;
+        public const int NoWrap = 2;
 
         /// <summary>
         ///     Encoder flag bit to indicate lines should be terminated with a
         ///     CRLF pair instead of just an LF.  Has no effect if {@code
         ///     NO_WRAP} is specified as well.
         /// </summary>
-        public const int CRLF = 4;
+        public const int Crlf = 4;
 
         /// <summary>
         ///     Encoder/decoder flag bit to indicate using the "URL and
@@ -67,14 +67,14 @@ namespace pili_sdk_csharp.pili_common
         ///     {@code -} and {@code _} are used in place of {@code +} and
         ///     {@code /}.
         /// </summary>
-        public const int URL_SAFE = 8;
+        public const int UrlSafe = 8;
 
         /// <summary>
         ///     Flag to pass to indicate that it
         ///     should not close the output stream it is wrapping when it
         ///     itself is closed.
         /// </summary>
-        public const int NO_CLOSE = 16;
+        public const int NoClose = 16;
 
         //  --------------------------------------------------------
         //  shared code
@@ -105,13 +105,13 @@ namespace pili_sdk_csharp.pili_common
         ///     controls certain features of the decoded output.
         ///     Pass {@code DEFAULT} to decode standard Base64.
         /// </param>
-        /// <exception cref="IllegalArgumentException">
+        /// <exception cref="ArgumentException">
         ///     if the input contains
         ///     incorrect padding
         /// </exception>
-        public static byte[] decode(string str, int flags)
+        public static byte[] Decode(string str, int flags)
         {
-            return decode(Encoding.UTF8.GetBytes(str), flags);
+            return Decode(Encoding.UTF8.GetBytes(str), flags);
         }
 
         /// <summary>
@@ -128,13 +128,13 @@ namespace pili_sdk_csharp.pili_common
         ///     controls certain features of the decoded output.
         ///     Pass {@code DEFAULT} to decode standard Base64.
         /// </param>
-        /// <exception cref="IllegalArgumentException">
+        /// <exception cref="ArgumentException">
         ///     if the input contains
         ///     incorrect padding
         /// </exception>
-        public static byte[] decode(byte[] input, int flags)
+        public static byte[] Decode(byte[] input, int flags)
         {
-            return decode(input, 0, input.Length, flags);
+            return Decode(input, 0, input.Length, flags);
         }
 
         /// <summary>
@@ -153,31 +153,31 @@ namespace pili_sdk_csharp.pili_common
         ///     controls certain features of the decoded output.
         ///     Pass {@code DEFAULT} to decode standard Base64.
         /// </param>
-        /// <exception cref="IllegalArgumentException">
+        /// <exception cref="ArgumentException">
         ///     if the input contains
         ///     incorrect padding
         /// </exception>
-        public static byte[] decode(byte[] input, int offset, int len, int flags)
+        public static byte[] Decode(byte[] input, int offset, int len, int flags)
         {
             // Allocate space for the most data the input could represent.
             // (It could contain less if it contains whitespace, etc.)
             var decoder = new Decoder(flags, new byte[len * 3 / 4]);
 
-            if (!decoder.process(input, offset, len, true))
+            if (!decoder.Process(input, offset, len, true))
             {
                 throw new ArgumentException("bad base-64");
             }
 
             // Maybe we got lucky and allocated exactly enough output space.
-            if (decoder.op == decoder.output.Length)
+            if (decoder.Op == decoder.Output.Length)
             {
-                return decoder.output;
+                return decoder.Output;
             }
 
             // Need to shorten the array, so allocate a new one of the
             // right size and copy.
-            var temp = new byte[decoder.op];
-            Array.Copy(decoder.output, 0, temp, 0, decoder.op);
+            var temp = new byte[decoder.Op];
+            Array.Copy(decoder.Output, 0, temp, 0, decoder.Op);
             return temp;
         }
 
@@ -191,17 +191,9 @@ namespace pili_sdk_csharp.pili_common
         ///     Passing {@code DEFAULT} results in output that
         ///     adheres to RFC 2045.
         /// </param>
-        public static string encodeToString(byte[] input, int flags)
+        public static string EncodeToString(byte[] input, int flags)
         {
-            try
-            {
-                return StringHelperClass.NewString(encode(input, flags), "US-ASCII");
-            }
-            catch (Exception e)
-            {
-                // US-ASCII is guaranteed to be available.
-                throw e;
-            }
+            return StringHelperClass.NewString(Encode(input, flags), "US-ASCII");
         }
 
 
@@ -224,17 +216,9 @@ namespace pili_sdk_csharp.pili_common
         ///     Passing {@code DEFAULT} results in output that
         ///     adheres to RFC 2045.
         /// </param>
-        public static string encodeToString(byte[] input, int offset, int len, int flags)
+        public static string EncodeToString(byte[] input, int offset, int len, int flags)
         {
-            try
-            {
-                return StringHelperClass.NewString(encode(input, offset, len, flags), "US-ASCII");
-            }
-            catch (Exception e)
-            {
-                // US-ASCII is guaranteed to be available.
-                throw e;
-            }
+            return StringHelperClass.NewString(Encode(input, offset, len, flags), "US-ASCII");
         }
 
         /// <summary>
@@ -247,9 +231,9 @@ namespace pili_sdk_csharp.pili_common
         ///     Passing {@code DEFAULT} results in output that
         ///     adheres to RFC 2045.
         /// </param>
-        public static byte[] encode(byte[] input, int flags)
+        public static byte[] Encode(byte[] input, int flags)
         {
-            return encode(input, 0, input.Length, flags);
+            return Encode(input, 0, input.Length, flags);
         }
 
         /// <summary>
@@ -267,19 +251,19 @@ namespace pili_sdk_csharp.pili_common
         ///     Passing {@code DEFAULT} results in output that
         ///     adheres to RFC 2045.
         /// </param>
-        public static byte[] encode(byte[] input, int offset, int len, int flags)
+        public static byte[] Encode(byte[] input, int offset, int len, int flags)
         {
             var encoder = new Encoder(flags, null);
 
             // Compute the exact length of the array we will produce.
-            var output_len = len / 3 * 4;
+            var outputLen = len / 3 * 4;
 
             // Account for the tail of the data and the padding bytes, if any.
-            if (encoder.do_padding)
+            if (encoder.DoPadding)
             {
                 if (len % 3 > 0)
                 {
-                    output_len += 4;
+                    outputLen += 4;
                 }
             }
             else
@@ -289,33 +273,33 @@ namespace pili_sdk_csharp.pili_common
                     case 0:
                         break;
                     case 1:
-                        output_len += 2;
+                        outputLen += 2;
                         break;
                     case 2:
-                        output_len += 3;
+                        outputLen += 3;
                         break;
                 }
             }
 
             // Account for the newlines, if any.
-            if (encoder.do_newline && len > 0)
+            if (encoder.DoNewline && len > 0)
             {
-                output_len += ((len - 1) / (3 * Encoder.LINE_GROUPS) + 1) * (encoder.do_cr ? 2 : 1);
+                outputLen += ((len - 1) / (3 * Encoder.LineGroups) + 1) * (encoder.DoCr ? 2 : 1);
             }
 
-            encoder.output = new byte[output_len];
-            encoder.process(input, offset, len, true);
+            encoder.Output = new byte[outputLen];
+            encoder.Process(input, offset, len, true);
 
-            Debug.Assert(encoder.op == output_len);
+            Debug.Assert(encoder.Op == outputLen);
 
-            return encoder.output;
+            return encoder.Output;
         }
 
         /* package */
         internal abstract class Coder
         {
-            public int op;
-            public byte[] output;
+            public int Op;
+            public byte[] Output;
 
             /// <summary>
             ///     Encode/decode another block of input data.  this.output is
@@ -332,14 +316,14 @@ namespace pili_sdk_csharp.pili_common
             ///     true if the input so far is good; false if some
             ///     error has been detected in the input stream..
             /// </returns>
-            public abstract bool process(byte[] input, int offset, int len, bool finish);
+            public abstract bool Process(byte[] input, int offset, int len, bool finish);
 
             /// <returns>
             ///     the maximum number of bytes a call to process()
             ///     could produce for the given number of input bytes.  This may
             ///     be an overestimate.
             /// </returns>
-            public abstract int maxOutputSize(int len);
+            public abstract int MaxOutputSize(int len);
         }
 
         /* package */
@@ -348,7 +332,7 @@ namespace pili_sdk_csharp.pili_common
             /// <summary>
             ///     Non-data values in the DECODE arrays.
             /// </summary>
-            internal const int SKIP = -1;
+            internal const int Skip = -1;
 
             internal const int EQUALS = -2;
 
@@ -356,7 +340,7 @@ namespace pili_sdk_csharp.pili_common
             ///     Lookup table for turning bytes into their position in the
             ///     Base64 alphabet.
             /// </summary>
-            internal static readonly int[] DECODE =
+            internal static readonly int[] Decode =
             {
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                 -1, -1, 62, -1, -1, -1, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -2, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
@@ -371,7 +355,7 @@ namespace pili_sdk_csharp.pili_common
             ///     Decode lookup table for the "web safe" variant (RFC 3548
             ///     sec. 4) where - and _ replace + and /.
             /// </summary>
-            internal static readonly int[] DECODE_WEBSAFE =
+            internal static readonly int[] DecodeWebsafe =
             {
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                 -1, -1, -1, -1, 62, -1, -1, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -2, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
@@ -382,7 +366,7 @@ namespace pili_sdk_csharp.pili_common
                 -1, -1, -1, -1, -1, -1, -1, -1
             };
 
-            internal readonly int[] alphabet;
+            internal readonly int[] Alphabet;
 
             /// <summary>
             ///     States 0-3 are reading through the next input tuple.
@@ -393,24 +377,24 @@ namespace pili_sdk_csharp.pili_common
             ///     State 6 is the error state; an error has been detected
             ///     in the input and no future input can "fix" it.
             /// </summary>
-            internal int state; // state number (0 to 6)
+            internal int State; // state number (0 to 6)
 
-            internal int value;
+            internal int Value;
 
             public Decoder(int flags, byte[] output)
             {
-                this.output = output;
+                Output = output;
 
-                alphabet = (flags & URL_SAFE) == 0 ? DECODE : DECODE_WEBSAFE;
-                state = 0;
-                value = 0;
+                Alphabet = (flags & UrlSafe) == 0 ? Decode : DecodeWebsafe;
+                State = 0;
+                Value = 0;
             }
 
             /// <returns>
             ///     an overestimate for the number of bytes {@code
             ///     len} bytes could decode to.
             /// </returns>
-            public override int maxOutputSize(int len)
+            public override int MaxOutputSize(int len)
             {
                 return len * 3 / 4 + 10;
             }
@@ -422,9 +406,9 @@ namespace pili_sdk_csharp.pili_common
             ///     true if the state machine is still healthy.  false if
             ///     bad base-64 data has been detected in the input stream.
             /// </returns>
-            public override bool process(byte[] input, int offset, int len, bool finish)
+            public override bool Process(byte[] input, int offset, int len, bool finish)
             {
-                if (this.state == 6)
+                if (State == 6)
                 {
                     return false;
                 }
@@ -437,15 +421,15 @@ namespace pili_sdk_csharp.pili_common
                 // the loop.  (Even alphabet makes a measurable
                 // difference, which is somewhat surprising to me since
                 // the member variable is final.)
-                var state = this.state;
-                var value = this.value;
+                var state = State;
+                var value = Value;
                 var op = 0;
                 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
                 //ORIGINAL LINE: final byte[] output = this.output;
-                var output = this.output;
+                var output = Output;
                 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
                 //ORIGINAL LINE: final int[] alphabet = this.alphabet;
-                var alphabet = this.alphabet;
+                var alphabet = Alphabet;
 
                 while (p < len)
                 {
@@ -495,9 +479,9 @@ namespace pili_sdk_csharp.pili_common
                                 value = d;
                                 ++state;
                             }
-                            else if (d != SKIP)
+                            else if (d != Skip)
                             {
-                                this.state = 6;
+                                State = 6;
                                 return false;
                             }
                             break;
@@ -508,9 +492,9 @@ namespace pili_sdk_csharp.pili_common
                                 value = (value << 6) | d;
                                 ++state;
                             }
-                            else if (d != SKIP)
+                            else if (d != Skip)
                             {
-                                this.state = 6;
+                                State = 6;
                                 return false;
                             }
                             break;
@@ -528,9 +512,9 @@ namespace pili_sdk_csharp.pili_common
                                 output[op++] = (byte)(value >> 4);
                                 state = 4;
                             }
-                            else if (d != SKIP)
+                            else if (d != Skip)
                             {
-                                this.state = 6;
+                                State = 6;
                                 return false;
                             }
                             break;
@@ -555,9 +539,9 @@ namespace pili_sdk_csharp.pili_common
                                 op += 2;
                                 state = 5;
                             }
-                            else if (d != SKIP)
+                            else if (d != Skip)
                             {
-                                this.state = 6;
+                                State = 6;
                                 return false;
                             }
                             break;
@@ -567,17 +551,17 @@ namespace pili_sdk_csharp.pili_common
                             {
                                 ++state;
                             }
-                            else if (d != SKIP)
+                            else if (d != Skip)
                             {
-                                this.state = 6;
+                                State = 6;
                                 return false;
                             }
                             break;
 
                         case 5:
-                            if (d != SKIP)
+                            if (d != Skip)
                             {
-                                this.state = 6;
+                                State = 6;
                                 return false;
                             }
                             break;
@@ -588,9 +572,9 @@ namespace pili_sdk_csharp.pili_common
                 {
                     // We're out of input, but a future call could provide
                     // more.
-                    this.state = state;
-                    this.value = value;
-                    this.op = op;
+                    State = state;
+                    Value = value;
+                    Op = op;
                     return true;
                 }
 
@@ -605,7 +589,7 @@ namespace pili_sdk_csharp.pili_common
                     case 1:
                         // Read one extra input byte, which isn't enough to
                         // make another output byte.  Illegal.
-                        this.state = 6;
+                        State = 6;
                         return false;
                     case 2:
                         // Read two extra input bytes, enough to emit 1 more
@@ -620,7 +604,7 @@ namespace pili_sdk_csharp.pili_common
                         break;
                     case 4:
                         // Read one padding '=' when we expected 2.  Illegal.
-                        this.state = 6;
+                        State = 6;
                         return false;
                     case 5:
                         // Read all the padding '='s we expected and no more.
@@ -628,8 +612,8 @@ namespace pili_sdk_csharp.pili_common
                         break;
                 }
 
-                this.state = state;
-                this.op = op;
+                State = state;
+                Op = op;
                 return true;
             }
         }
@@ -642,13 +626,13 @@ namespace pili_sdk_csharp.pili_common
             ///     a 76-character line length (the maximum allowable according to
             ///     <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>).
             /// </summary>
-            public const int LINE_GROUPS = 19;
+            public const int LineGroups = 19;
 
             /// <summary>
             ///     Lookup table for turning Base64 alphabet positions (6 bits)
             ///     into output bytes.
             /// </summary>
-            internal static readonly byte[] ENCODE =
+            internal static readonly byte[] Encode =
             {
                 (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F', (byte)'G', (byte)'H', (byte)'I', (byte)'J', (byte)'K', (byte)'L', (byte)'M', (byte)'N', (byte)'O',
                 (byte)'P', (byte)'Q', (byte)'R', (byte)'S', (byte)'T', (byte)'U', (byte)'V', (byte)'W', (byte)'X', (byte)'Y', (byte)'Z', (byte)'a', (byte)'b', (byte)'c', (byte)'d',
@@ -661,7 +645,7 @@ namespace pili_sdk_csharp.pili_common
             ///     Lookup table for turning Base64 alphabet positions (6 bits)
             ///     into output bytes.
             /// </summary>
-            internal static readonly byte[] ENCODE_WEBSAFE =
+            internal static readonly byte[] EncodeWebsafe =
             {
                 (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F', (byte)'G', (byte)'H', (byte)'I', (byte)'J', (byte)'K', (byte)'L', (byte)'M', (byte)'N', (byte)'O',
                 (byte)'P', (byte)'Q', (byte)'R', (byte)'S', (byte)'T', (byte)'U', (byte)'V', (byte)'W', (byte)'X', (byte)'Y', (byte)'Z', (byte)'a', (byte)'b', (byte)'c', (byte)'d',
@@ -670,52 +654,52 @@ namespace pili_sdk_csharp.pili_common
                 (byte)'8', (byte)'9', (byte)'-', (byte)'_'
             };
 
-            internal readonly byte[] alphabet;
-            public readonly bool do_cr;
-            public readonly bool do_newline;
-            public readonly bool do_padding;
-            internal readonly byte[] tail;
+            internal readonly byte[] Alphabet;
+            public readonly bool DoCr;
+            public readonly bool DoNewline;
+            public readonly bool DoPadding;
+            internal readonly byte[] Tail;
 
-            internal int count;
+            internal int Count;
 
             /* package */
-            internal int tailLen;
+            internal int TailLen;
 
             public Encoder(int flags, byte[] output)
             {
-                this.output = output;
+                Output = output;
 
-                do_padding = (flags & NO_PADDING) == 0;
-                do_newline = (flags & NO_WRAP) == 0;
-                do_cr = (flags & CRLF) != 0;
-                alphabet = (flags & URL_SAFE) == 0 ? ENCODE : ENCODE_WEBSAFE;
+                DoPadding = (flags & NoPadding) == 0;
+                DoNewline = (flags & NoWrap) == 0;
+                DoCr = (flags & Crlf) != 0;
+                Alphabet = (flags & UrlSafe) == 0 ? Encode : EncodeWebsafe;
 
-                tail = new byte[2];
-                tailLen = 0;
+                Tail = new byte[2];
+                TailLen = 0;
 
-                count = do_newline ? LINE_GROUPS : -1;
+                Count = DoNewline ? LineGroups : -1;
             }
 
             /// <returns>
             ///     an overestimate for the number of bytes {@code
             ///     len} bytes could encode to.
             /// </returns>
-            public override int maxOutputSize(int len)
+            public override int MaxOutputSize(int len)
             {
                 return len * 8 / 5 + 10;
             }
 
-            public override bool process(byte[] input, int offset, int len, bool finish)
+            public override bool Process(byte[] input, int offset, int len, bool finish)
             {
                 // Using local variables makes the encoder about 9% faster.
                 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
                 //ORIGINAL LINE: final byte[] alphabet = this.alphabet;
-                var alphabet = this.alphabet;
+                var alphabet = Alphabet;
                 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
                 //ORIGINAL LINE: final byte[] output = this.output;
-                var output = this.output;
+                var output = Output;
                 var op = 0;
-                var count = this.count;
+                var count = Count;
 
                 var p = offset;
                 len += offset;
@@ -725,7 +709,7 @@ namespace pili_sdk_csharp.pili_common
                 // with any input bytes available now and see if we can empty
                 // the tail.
 
-                switch (tailLen)
+                switch (TailLen)
                 {
                     case 0:
                         // There was no tail.
@@ -736,18 +720,17 @@ namespace pili_sdk_csharp.pili_common
                         {
                             // A 1-byte tail with at least 2 bytes of
                             // input available now.
-                            v = ((tail[0] & 0xff) << 16) | ((input[p++] & 0xff) << 8) | (input[p++] & 0xff);
-                            tailLen = 0;
+                            v = ((Tail[0] & 0xff) << 16) | ((input[p++] & 0xff) << 8) | (input[p++] & 0xff);
+                            TailLen = 0;
                         }
-                        ;
                         break;
 
                     case 2:
                         if (p + 1 <= len)
                         {
                             // A 2-byte tail with at least 1 byte of input.
-                            v = ((tail[0] & 0xff) << 16) | ((tail[1] & 0xff) << 8) | (input[p++] & 0xff);
-                            tailLen = 0;
+                            v = ((Tail[0] & 0xff) << 16) | ((Tail[1] & 0xff) << 8) | (input[p++] & 0xff);
+                            TailLen = 0;
                         }
                         break;
                 }
@@ -760,12 +743,12 @@ namespace pili_sdk_csharp.pili_common
                     output[op++] = alphabet[v & 0x3f];
                     if (--count == 0)
                     {
-                        if (do_cr)
+                        if (DoCr)
                         {
                             output[op++] = (byte)'\r';
                         }
                         output[op++] = (byte)'\n';
-                        count = LINE_GROUPS;
+                        count = LineGroups;
                     }
                 }
 
@@ -785,12 +768,12 @@ namespace pili_sdk_csharp.pili_common
                     op += 4;
                     if (--count == 0)
                     {
-                        if (do_cr)
+                        if (DoCr)
                         {
                             output[op++] = (byte)'\r';
                         }
                         output[op++] = (byte)'\n';
-                        count = LINE_GROUPS;
+                        count = LineGroups;
                     }
                 }
 
@@ -801,58 +784,58 @@ namespace pili_sdk_csharp.pili_common
                     // remaining in input; there should be at most two bytes
                     // total.
 
-                    if (p - tailLen == len - 1)
+                    if (p - TailLen == len - 1)
                     {
                         var t = 0;
-                        v = ((tailLen > 0 ? tail[t++] : input[p++]) & 0xff) << 4;
-                        tailLen -= t;
+                        v = ((TailLen > 0 ? Tail[t++] : input[p++]) & 0xff) << 4;
+                        TailLen -= t;
                         output[op++] = alphabet[(v >> 6) & 0x3f];
                         output[op++] = alphabet[v & 0x3f];
-                        if (do_padding)
+                        if (DoPadding)
                         {
                             output[op++] = (byte)'=';
                             output[op++] = (byte)'=';
                         }
-                        if (do_newline)
+                        if (DoNewline)
                         {
-                            if (do_cr)
+                            if (DoCr)
                             {
                                 output[op++] = (byte)'\r';
                             }
                             output[op++] = (byte)'\n';
                         }
                     }
-                    else if (p - tailLen == len - 2)
+                    else if (p - TailLen == len - 2)
                     {
                         var t = 0;
-                        v = (((tailLen > 1 ? tail[t++] : input[p++]) & 0xff) << 10) | (((tailLen > 0 ? tail[t++] : input[p++]) & 0xff) << 2);
-                        tailLen -= t;
+                        v = (((TailLen > 1 ? Tail[t++] : input[p++]) & 0xff) << 10) | (((TailLen > 0 ? Tail[t++] : input[p++]) & 0xff) << 2);
+                        TailLen -= t;
                         output[op++] = alphabet[(v >> 12) & 0x3f];
                         output[op++] = alphabet[(v >> 6) & 0x3f];
                         output[op++] = alphabet[v & 0x3f];
-                        if (do_padding)
+                        if (DoPadding)
                         {
                             output[op++] = (byte)'=';
                         }
-                        if (do_newline)
+                        if (DoNewline)
                         {
-                            if (do_cr)
+                            if (DoCr)
                             {
                                 output[op++] = (byte)'\r';
                             }
                             output[op++] = (byte)'\n';
                         }
                     }
-                    else if (do_newline && op > 0 && count != LINE_GROUPS)
+                    else if (DoNewline && op > 0 && count != LineGroups)
                     {
-                        if (do_cr)
+                        if (DoCr)
                         {
                             output[op++] = (byte)'\r';
                         }
                         output[op++] = (byte)'\n';
                     }
 
-                    Debug.Assert(tailLen == 0);
+                    Debug.Assert(TailLen == 0);
                     Debug.Assert(p == len);
                 }
                 else
@@ -862,17 +845,17 @@ namespace pili_sdk_csharp.pili_common
 
                     if (p == len - 1)
                     {
-                        tail[tailLen++] = input[p];
+                        Tail[TailLen++] = input[p];
                     }
                     else if (p == len - 2)
                     {
-                        tail[tailLen++] = input[p];
-                        tail[tailLen++] = input[p + 1];
+                        Tail[TailLen++] = input[p];
+                        Tail[TailLen++] = input[p + 1];
                     }
                 }
 
-                this.op = op;
-                this.count = count;
+                Op = op;
+                Count = count;
 
                 return true;
             }

@@ -8,17 +8,17 @@ namespace pili_sdk_csharp.pili
 {
     public class Stream
     {
-        public const string ORIGIN = "ORIGIN";
-        private readonly string id;
-        private readonly Credentials mCredentials;
-        private readonly string mStreamJsonStr;
-        private readonly string[] profiles;
+        public const string Origin = "ORIGIN";
+        private readonly string _id;
+        private readonly Credentials _mCredentials;
+        private readonly string _mStreamJsonStr;
+        private readonly string[] _profiles;
 
 
         public Stream(JObject jsonObj)
         {
             //  System.out.println("Stream:" + jsonObj.toString());
-            id = jsonObj["id"].ToString();
+            _id = jsonObj["id"].ToString();
             HubName = jsonObj["hub"].ToString();
             CreatedAt = jsonObj["createdAt"].ToString();
             UpdatedAt = jsonObj["updatedAt"].ToString();
@@ -30,7 +30,7 @@ namespace pili_sdk_csharp.pili
             if (jsonObj["profiles"] != null)
             {
                 Console.WriteLine("profiles--------" + jsonObj["profiles"]);
-                profiles = JsonConvert.DeserializeAnonymousType(jsonObj["profiles"].ToString(), profiles);
+                _profiles = JsonConvert.DeserializeAnonymousType(jsonObj["profiles"].ToString(), _profiles);
             }
 
             if (jsonObj["hosts"]["publish"] != null)
@@ -54,14 +54,14 @@ namespace pili_sdk_csharp.pili
                 PlayRtmpHost = jsonObj["hosts"]["play"]["rtmp"].ToString();
             }
 
-            mStreamJsonStr = jsonObj.ToString();
+            _mStreamJsonStr = jsonObj.ToString();
         }
 
 
         public Stream(JObject jsonObject, Credentials credentials)
             : this(jsonObject)
         {
-            mCredentials = credentials;
+            _mCredentials = credentials;
         }
 
         public string PlaybackHttpHost { get; }
@@ -77,13 +77,13 @@ namespace pili_sdk_csharp.pili
 
         public string LiveHlsHost { get; }
 
-        public virtual string[] Profiles => profiles;
+        public virtual string[] Profiles => _profiles;
 
         public virtual string PublishRtmpHost { get; }
 
         public virtual string LiveRtmpHost { get; }
 
-        public virtual string StreamId => id;
+        public virtual string StreamId => _id;
 
         public virtual string HubName { get; }
 
@@ -100,117 +100,117 @@ namespace pili_sdk_csharp.pili
         public virtual bool Disabled { get; }
 
 
-        public virtual Stream update(string publishKey, string publishSecrity, bool disabled)
+        public virtual Stream Update(string publishKey, string publishSecrity, bool disabled)
         {
-            return API.updateStream(mCredentials, id, publishKey, publishSecrity, disabled);
+            return API.UpdateStream(_mCredentials, _id, publishKey, publishSecrity, disabled);
         }
 
 
-        public virtual SegmentList segments()
+        public virtual SegmentList Segments()
         {
-            return API.getStreamSegments(mCredentials, id, 0, 0, 0);
+            return API.GetStreamSegments(_mCredentials, _id, 0, 0, 0);
         }
 
 
-        public virtual SegmentList segments(long start, long end)
+        public virtual SegmentList Segments(long start, long end)
         {
-            return API.getStreamSegments(mCredentials, id, start, end, 0);
+            return API.GetStreamSegments(_mCredentials, _id, start, end, 0);
         }
 
 
-        public virtual SegmentList segments(long start, long end, int limit)
+        public virtual SegmentList Segments(long start, long end, int limit)
         {
-            return API.getStreamSegments(mCredentials, id, start, end, limit);
+            return API.GetStreamSegments(_mCredentials, _id, start, end, limit);
         }
 
 
-        public virtual Status status()
+        public virtual Status CurrentStatus()
         {
-            return API.getStreamStatus(mCredentials, id);
+            return API.GetStreamStatus(_mCredentials, _id);
         }
 
 
-        public virtual string rtmpPublishUrl()
+        public virtual string RtmpPublishUrl()
         {
-            return API.publishUrl(this, 0);
+            return API.PublishUrl(this, 0);
         }
 
-        public virtual IDictionary<string, string> rtmpLiveUrls()
+        public virtual IDictionary<string, string> RtmpLiveUrls()
         {
-            return API.rtmpLiveUrl(this);
+            return API.RtmpLiveUrl(this);
         }
 
-        public virtual IDictionary<string, string> hlsLiveUrls()
+        public virtual IDictionary<string, string> HlsLiveUrls()
         {
-            return API.hlsLiveUrl(this);
+            return API.HlsLiveUrl(this);
         }
 
-        public virtual IDictionary<string, string> hlsPlaybackUrls(long start, long end)
+        public virtual IDictionary<string, string> HlsPlaybackUrls(long start, long end)
         {
-            return API.hlsPlaybackUrl(mCredentials, id, start, end);
+            return API.HlsPlaybackUrl(_mCredentials, _id, start, end);
         }
 
-        public virtual IDictionary<string, string> httpFlvLiveUrls()
+        public virtual IDictionary<string, string> HttpFlvLiveUrls()
         {
-            return API.httpFlvLiveUrl(this);
-        }
-
-
-        public virtual string delete()
-        {
-            return API.deleteStream(mCredentials, id);
-        }
-
-        public virtual string toJsonString()
-        {
-            return mStreamJsonStr;
+            return API.HttpFlvLiveUrl(this);
         }
 
 
-        public virtual SaveAsResponse saveAs(string fileName, string format, long startTime, long endTime, string notifyUrl, string pipleline)
+        public virtual string Delete()
         {
-            return API.saveAs(mCredentials, id, fileName, format, startTime, endTime, notifyUrl, pipleline);
+            return API.DeleteStream(_mCredentials, _id);
         }
 
-        public virtual SaveAsResponse saveAs(string fileName, string format, long startTime, long endTime)
+        public virtual string ToJsonString()
         {
-            return saveAs(fileName, format, startTime, endTime, null, null);
-        }
-
-        public virtual SaveAsResponse saveAs(string fileName, string format, string notifyUrl, string pipleline)
-        {
-            return saveAs(fileName, format, 0, 0, notifyUrl, pipleline);
-        }
-
-        public virtual SaveAsResponse saveAs(string fileName, string format)
-        {
-            return saveAs(fileName, format, 0, 0, null, null);
-        }
-
-        public virtual SnapshotResponse snapshot(string name, string format)
-        {
-            return API.snapshot(mCredentials, id, name, format, 0, null);
-        }
-
-        public virtual SnapshotResponse snapshot(string name, string format, string notifyUrl)
-        {
-            return API.snapshot(mCredentials, id, name, format, 0, notifyUrl);
-        }
-
-        public virtual SnapshotResponse snapshot(string name, string format, long time, string notifyUrl)
-        {
-            return API.snapshot(mCredentials, id, name, format, time, notifyUrl);
+            return _mStreamJsonStr;
         }
 
 
-        public virtual Stream enable()
+        public virtual SaveAsResponse SaveAs(string fileName, string format, long startTime, long endTime, string notifyUrl, string pipleline)
         {
-            return API.updateStream(mCredentials, id, null, null, false);
+            return API.SaveAs(_mCredentials, _id, fileName, format, startTime, endTime, notifyUrl, pipleline);
         }
 
-        public virtual Stream disable()
+        public virtual SaveAsResponse SaveAs(string fileName, string format, long startTime, long endTime)
         {
-            return API.updateStream(mCredentials, id, null, null, true);
+            return SaveAs(fileName, format, startTime, endTime, null, null);
+        }
+
+        public virtual SaveAsResponse SaveAs(string fileName, string format, string notifyUrl, string pipleline)
+        {
+            return SaveAs(fileName, format, 0, 0, notifyUrl, pipleline);
+        }
+
+        public virtual SaveAsResponse SaveAs(string fileName, string format)
+        {
+            return SaveAs(fileName, format, 0, 0, null, null);
+        }
+
+        public virtual SnapshotResponse Snapshot(string name, string format)
+        {
+            return API.Snapshot(_mCredentials, _id, name, format, 0, null);
+        }
+
+        public virtual SnapshotResponse Snapshot(string name, string format, string notifyUrl)
+        {
+            return API.Snapshot(_mCredentials, _id, name, format, 0, notifyUrl);
+        }
+
+        public virtual SnapshotResponse Snapshot(string name, string format, long time, string notifyUrl)
+        {
+            return API.Snapshot(_mCredentials, _id, name, format, time, notifyUrl);
+        }
+
+
+        public virtual Stream Enable()
+        {
+            return API.UpdateStream(_mCredentials, _id, null, null, false);
+        }
+
+        public virtual Stream Disable()
+        {
+            return API.UpdateStream(_mCredentials, _id, null, null, true);
         }
 
         public class Segment
@@ -229,7 +229,7 @@ namespace pili_sdk_csharp.pili
 
         public class SaveAsResponse
         {
-            private readonly string mJsonString;
+            private readonly string _mJsonString;
 
             public SaveAsResponse(JObject jsonObj)
             {
@@ -244,7 +244,7 @@ namespace pili_sdk_csharp.pili
                     // do nothing. ignore.
                 }
                 PersistentId = jsonObj["persistentId"].ToString();
-                mJsonString = jsonObj.ToString();
+                _mJsonString = jsonObj.ToString();
             }
 
             public virtual string Url { get; }
@@ -255,19 +255,19 @@ namespace pili_sdk_csharp.pili
 
             public override string ToString()
             {
-                return mJsonString;
+                return _mJsonString;
             }
         }
 
         public class SnapshotResponse
         {
-            private readonly string mJsonString;
+            private readonly string _mJsonString;
 
             public SnapshotResponse(JObject jsonObj)
             {
                 TargetUrl = jsonObj["targetUrl"].ToString();
                 PersistentId = jsonObj.GetValue("persistentId") == null ? null : jsonObj["persistentId"].ToString();
-                mJsonString = jsonObj.ToString();
+                _mJsonString = jsonObj.ToString();
             }
 
             public virtual string TargetUrl { get; }
@@ -276,7 +276,7 @@ namespace pili_sdk_csharp.pili
 
             public override string ToString()
             {
-                return mJsonString;
+                return _mJsonString;
             }
         }
 
@@ -298,35 +298,35 @@ namespace pili_sdk_csharp.pili
 
         public class SegmentList
         {
-            private readonly IList<Segment> segmentList;
+            private readonly IList<Segment> _segmentList;
 
 
             public SegmentList(JObject jsonObj)
             {
-                segmentList = new List<Segment>();
+                _segmentList = new List<Segment>();
                 var jlist = JArray.Parse(jsonObj["segments"].ToString());
                 for (var i = 0; i < jlist.Count; ++i)
                 {
                     var tempo = JObject.Parse(jlist[i].ToString());
-                    segmentList.Add(new Segment((long)tempo["start"], (long)tempo["end"]));
+                    _segmentList.Add(new Segment((long)tempo["start"], (long)tempo["end"]));
                 }
             }
 
-            public virtual IList<Segment> getSegmentList()
+            public virtual IList<Segment> GetSegmentList()
             {
-                return segmentList;
+                return _segmentList;
             }
         }
 
         public class Status
         {
-            private readonly string mJsonString;
-            private readonly string status;
+            private readonly string _mJsonString;
+            private readonly string _status;
 
             public Status(JObject jsonObj)
             {
                 Addr = jsonObj["addr"].ToString();
-                status = jsonObj["status"].ToString();
+                _status = jsonObj["CurrentStatus"].ToString();
                 var startFrominit = (DateTime)jsonObj["startFrom"];
                 StartFrom = startFrominit.ToString("yyyy-MM-ddTHH:mm:ssZ");
                 try
@@ -342,7 +342,7 @@ namespace pili_sdk_csharp.pili
                     Console.WriteLine(e.ToString());
                     Console.Write(e.StackTrace);
                 }
-                mJsonString = jsonObj.ToString();
+                _mJsonString = jsonObj.ToString();
             }
 
             public virtual string Addr { get; }
@@ -353,34 +353,34 @@ namespace pili_sdk_csharp.pili
 
             public virtual FramesPerSecond FramesPerSecond { get; }
 
-            public virtual string getStatus()
+            public virtual string GetStatus()
             {
-                return status;
+                return _status;
             }
 
             public override string ToString()
             {
-                return mJsonString;
+                return _mJsonString;
             }
         }
 
         public class StreamList
         {
-            private readonly IList<Stream> itemList;
-            private readonly string marker;
+            private readonly IList<Stream> _itemList;
+            private readonly string _marker;
 
             public StreamList(JObject jsonObj, Credentials auth)
             {
-                marker = jsonObj["marker"].ToString();
-                Console.WriteLine("this.marker-----" + marker);
+                _marker = jsonObj["marker"].ToString();
+                Console.WriteLine("this.marker-----" + _marker);
 
                 try
                 {
                     var record = jsonObj["items"];
-                    itemList = new List<Stream>();
+                    _itemList = new List<Stream>();
                     foreach (JObject jp in record)
                     {
-                        itemList.Add(new Stream(JObject.Parse(jp.ToString()), auth));
+                        _itemList.Add(new Stream(JObject.Parse(jp.ToString()), auth));
                     }
                 }
                 catch (InvalidCastException e)
@@ -390,9 +390,9 @@ namespace pili_sdk_csharp.pili
                 }
             }
 
-            public virtual string Marker => marker;
+            public virtual string Marker => _marker;
 
-            public virtual IList<Stream> Streams => itemList;
+            public virtual IList<Stream> Streams => _itemList;
         }
     }
 }

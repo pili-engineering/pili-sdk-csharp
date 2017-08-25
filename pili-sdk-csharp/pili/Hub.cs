@@ -6,55 +6,47 @@ namespace pili_sdk_csharp.pili
 {
     public class Hub
     {
-        private readonly Credentials mCredentials;
-        private readonly string mHubName;
+        private readonly Credentials _mCredentials;
+        private readonly string _mHubName;
 
         public Hub(Credentials credentials, string hubName)
         {
-            if (hubName == null)
-            {
-                throw new ArgumentException(MessageConfig.NULL_HUBNAME_EXCEPTION_MSG);
-            }
-            if (credentials == null)
-            {
-                throw new ArgumentException(MessageConfig.NULL_CREDENTIALS_EXCEPTION_MSG);
-            }
-            mCredentials = credentials;
-            mHubName = hubName;
+            _mCredentials = credentials ?? throw new ArgumentException(MessageConfig.NullCredentialsExceptionMsg);
+            _mHubName = hubName ?? throw new ArgumentException(MessageConfig.NullHubnameExceptionMsg);
         }
 
 
-        public virtual Stream createStream()
+        public virtual Stream CreateStream()
         {
-            return API.createStream(mCredentials, mHubName, null, null, null);
+            return API.CreateStream(_mCredentials, _mHubName, null, null, null);
         }
 
-        public virtual Stream createStream(string title, string publishKey, string publishSecurity)
+        public virtual Stream CreateStream(string title, string publishKey, string publishSecurity)
         {
-            return API.createStream(mCredentials, mHubName, title, publishKey, publishSecurity);
+            return API.CreateStream(_mCredentials, _mHubName, title, publishKey, publishSecurity);
         }
 
-        public virtual Stream getStream(string streamId)
+        public virtual Stream GetStream(string streamId)
         {
-            return API.getStream(mCredentials, streamId);
-        }
-
-
-        public virtual Stream.StreamList listStreams()
-        {
-            return API.listStreams(mCredentials, mHubName, null, 0, null);
+            return API.GetStream(_mCredentials, streamId);
         }
 
 
-        public virtual Stream.StreamList listStreams(string marker, long limit)
+        public virtual Stream.StreamList ListStreams()
         {
-            return API.listStreams(mCredentials, mHubName, marker, limit, null);
+            return API.ListStreams(_mCredentials, _mHubName, null, 0, null);
         }
 
 
-        public virtual Stream.StreamList listStreams(string marker, long limit, string titlePrefix)
+        public virtual Stream.StreamList ListStreams(string marker, long limit)
         {
-            return API.listStreams(mCredentials, mHubName, marker, limit, titlePrefix);
+            return API.ListStreams(_mCredentials, _mHubName, marker, limit, null);
+        }
+
+
+        public virtual Stream.StreamList ListStreams(string marker, long limit, string titlePrefix)
+        {
+            return API.ListStreams(_mCredentials, _mHubName, marker, limit, titlePrefix);
         }
     }
 }

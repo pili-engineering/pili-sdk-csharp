@@ -6,7 +6,7 @@ namespace pili_sdk_csharp.pili_common
 {
     public class Utils
     {
-        public static int bufferLen = 32 * 1024;
+        public static int BufferLen = 32 * 1024;
 
         public static string UserAgent
         {
@@ -14,7 +14,7 @@ namespace pili_sdk_csharp.pili_common
             {
                 var csharpVersion = "csharp";
                 var os = "windows";
-                var sdk = Config.USER_AGENT + Config.SDK_VERSION;
+                var sdk = Config.UserAgent + Config.SdkVersion;
                 return sdk + os + csharpVersion;
             }
         }
@@ -34,10 +34,10 @@ namespace pili_sdk_csharp.pili_common
         public static void Copy(Stream dst, Stream src)
         {
             var l = src.Position;
-            var buffer = new byte[bufferLen];
+            var buffer = new byte[BufferLen];
             while (true)
             {
-                var n = src.Read(buffer, 0, bufferLen);
+                var n = src.Read(buffer, 0, BufferLen);
                 if (n == 0) break;
                 dst.Write(buffer, 0, n);
             }
@@ -47,11 +47,11 @@ namespace pili_sdk_csharp.pili_common
         public static void CopyN(Stream dst, Stream src, long numBytesToCopy)
         {
             var l = src.Position;
-            var buffer = new byte[bufferLen];
+            var buffer = new byte[BufferLen];
             long numBytesWritten = 0;
             while (numBytesWritten < numBytesToCopy)
             {
-                var len = bufferLen;
+                var len = BufferLen;
                 if (numBytesToCopy - numBytesWritten < len)
                 {
                     len = (int)(numBytesToCopy - numBytesWritten);
@@ -76,15 +76,9 @@ namespace pili_sdk_csharp.pili_common
          * 4. return true, only if the arg is a illegal string
          *
          * */
-        public static bool isArgNotEmpty(string arg)
+        public static bool IsArgNotEmpty(string arg)
         {
             return arg != null && arg.Trim().Length > 0;
         }
-
-        //    public static String getPath(String streamId) {
-        //        String[] res = streamId.split("\\.");
-        //        // res[1] -> hub, res[2] -> title
-        //        return String.format("/%s/%s", res[1], res[2]);
-        //    }
     }
 }
