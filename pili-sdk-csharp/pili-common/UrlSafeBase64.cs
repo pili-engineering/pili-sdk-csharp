@@ -1,11 +1,9 @@
-﻿using pili_sdk_csharp.pili_common;
-using System;
+﻿using System;
+
 namespace pili_sdk_csharp.pili_common
 {
-
     public class UrlSafeBase64
     {
-
         public static string encodeToString(string data)
         {
             try
@@ -30,5 +28,4 @@ namespace pili_sdk_csharp.pili_common
             return Base64.decode(data, Base64.URL_SAFE | Base64.NO_WRAP);
         }
     }
-
 }

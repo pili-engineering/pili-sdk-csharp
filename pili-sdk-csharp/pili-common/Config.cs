@@ -2,7 +2,6 @@
 
 namespace pili_sdk_csharp.pili_common
 {
-
     public class Config
     {
         public const string SDK_VERSION = "1.5.0";
@@ -22,5 +21,4 @@ namespace pili_sdk_csharp.pili_common
         public const int TITLE_MIN_LENGTH = 5;
         public const int TITLE_MAX_LENGTH = 200;
     }
-
 }

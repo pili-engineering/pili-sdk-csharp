@@ -1,31 +1,20 @@
-﻿using Config = pili_sdk_csharp.pili_common.Config;
-using Utils = pili_sdk_csharp.pili_common.Utils;
-
+﻿using System;
+using pili_sdk_csharp.pili_common;
 
 namespace pili_sdk_csharp.pili
 {
     public class Configuration
     {
+        internal string API_HOST = Config.DEFAULT_API_HOST;
+        internal string API_VERSION = Config.DEFAULT_API_VERSION;
+
+        internal bool USE_HTTPS = Config.DEFAULT_USE_HTTPS;
+
         private Configuration()
         {
         }
 
-        private class ConfigurationHolder
-        {
-            public static readonly Configuration instance = new Configuration();
-        }
-
-        public static Configuration Instance
-        {
-            get
-            {
-                return ConfigurationHolder.instance;
-            }
-        }
-
-        internal bool USE_HTTPS = Config.DEFAULT_USE_HTTPS;
-        internal string API_HOST = Config.DEFAULT_API_HOST;
-        internal string API_VERSION = Config.DEFAULT_API_VERSION;
+        public static Configuration Instance => ConfigurationHolder.instance;
 
         public virtual string APIHost
         {
@@ -33,7 +22,7 @@ namespace pili_sdk_csharp.pili
             {
                 if (!Utils.isArgNotEmpty(value))
                 {
-                    throw new System.ArgumentException("Illegal API Host:" + value);
+                    throw new ArgumentException("Illegal API Host:" + value);
                 }
                 API_HOST = value;
             }
@@ -45,7 +34,7 @@ namespace pili_sdk_csharp.pili
             {
                 if (!Utils.isArgNotEmpty(value))
                 {
-                    throw new System.ArgumentException("Illegal API Version:" + value);
+                    throw new ArgumentException("Illegal API Version:" + value);
                 }
                 API_VERSION = value;
             }
@@ -55,6 +44,10 @@ namespace pili_sdk_csharp.pili
         {
             USE_HTTPS = enabled;
         }
-    }
 
+        private class ConfigurationHolder
+        {
+            public static readonly Configuration instance = new Configuration();
+        }
+    }
 }

@@ -1,26 +1,22 @@
 ﻿using System;
-using System.Text;
 using System.Security.Cryptography;
-using Config = pili_sdk_csharp.pili_common.Config;
-using UrlSafeBase64 = pili_sdk_csharp.pili_common.UrlSafeBase64;
-
+using System.Text;
+using pili_sdk_csharp.pili_common;
 
 namespace pili_sdk_csharp.pili_qiniu
 {
-
-
     public class Credentials
     {
         private const string DIGEST_AUTH_PREFIX = "Qiniu";
-        private HMACSHA1 mSkSpec;
-        private string mAccessKey;
-        private string mSecretKey;
+        private readonly string mAccessKey;
+        private readonly string mSecretKey;
+        private readonly HMACSHA1 mSkSpec;
 
         public Credentials(string ak, string sk)
         {
             if (ak == null || sk == null)
             {
-                throw new System.ArgumentException("Invalid accessKey or secretKey!!");
+                throw new ArgumentException("Invalid accessKey or secretKey!!");
             }
             mAccessKey = ak;
             mSecretKey = sk;
@@ -38,10 +34,10 @@ namespace pili_sdk_csharp.pili_qiniu
 
         public virtual string signRequest(Uri url, string method, byte[] body, string contentType)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             // <Method> <Path><?Query>
-            string line = string.Format("{0} {1}", method, url.LocalPath);
+            var line = string.Format("{0} {1}", method, url.LocalPath);
             sb.Append(line);
             if (url.Query != "")
             {
@@ -50,7 +46,6 @@ namespace pili_sdk_csharp.pili_qiniu
 
             // Host: <Host>
             sb.Append(string.Format("\nHost: {0}", url.Host));
-
 
 
             if (url.Port != 80)
@@ -68,7 +63,6 @@ namespace pili_sdk_csharp.pili_qiniu
             if (body != null && contentType != null && !"application/octet-stream".Equals(contentType))
             {
                 sb.Append(StringHelperClass.NewString(body));
-
             }
             return string.Format("{0} {1}:{2}", DIGEST_AUTH_PREFIX, mAccessKey, signData(sb.ToString()));
         }
@@ -77,12 +71,11 @@ namespace pili_sdk_csharp.pili_qiniu
         {
             try
             {
-
-                System.Text.Encoding encoding = System.Text.Encoding.UTF8;
-                byte[] newdata = encoding.GetBytes(data);
-                byte[] bytesSK = encoding.GetBytes(secret);
-                HMACSHA1 mac = new HMACSHA1(bytesSK);
-                byte[] digest = mac.ComputeHash(newdata);
+                var encoding = Encoding.UTF8;
+                var newdata = encoding.GetBytes(data);
+                var bytesSK = encoding.GetBytes(secret);
+                var mac = new HMACSHA1(bytesSK);
+                var digest = mac.ComputeHash(newdata);
 
                 return digest;
             }
@@ -105,10 +98,10 @@ namespace pili_sdk_csharp.pili_qiniu
             string sign = null;
             try
             {
-                HMACSHA1 mac = createMac(mSkSpec);
-                System.Text.Encoding encoding = System.Text.Encoding.UTF8;
-                byte[] newdata = encoding.GetBytes(data);
-                byte[] digest = mac.ComputeHash(newdata);
+                var mac = createMac(mSkSpec);
+                var encoding = Encoding.UTF8;
+                var newdata = encoding.GetBytes(data);
+                var digest = mac.ComputeHash(newdata);
                 sign = UrlSafeBase64.encodeToString(digest);
             }
             catch (Exception e)
@@ -120,11 +113,8 @@ namespace pili_sdk_csharp.pili_qiniu
 
         private static HMACSHA1 createMac(HMACSHA1 secretKeySpec)
         {
-
-
-            HMACSHA1 mac = secretKeySpec;
+            var mac = secretKeySpec;
             return mac;
         }
     }
-
 }

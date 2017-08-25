@@ -1,18 +1,16 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using Newtonsoft.Json.Linq;
 using pili_sdk_csharp.pili_common;
-using System.IO;
+
 namespace pili_sdk_csharp.pili
 {
-
-
-
     public class PiliException : Exception
     {
         public readonly HttpWebResponse response;
 
-        private string mDetails = null;
+        private readonly string mDetails;
 
         public PiliException(HttpWebResponse response)
         {
@@ -20,10 +18,9 @@ namespace pili_sdk_csharp.pili
 
             try
             {
-
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-                string text = reader.ReadToEnd();
-                JObject jsonObj = JObject.Parse(text);
+                var reader = new StreamReader(response.GetResponseStream());
+                var text = reader.ReadToEnd();
+                var jsonObj = JObject.Parse(text);
 
                 mDetails = Utils.JsonEncode(jsonObj);
             }
@@ -43,29 +40,16 @@ namespace pili_sdk_csharp.pili
 
         public PiliException(Exception e)
         {
-            this.response = null;
+            response = null;
         }
+
+        public override string Message => response == null ? base.Message : response.ToString();
+
+        public virtual string Details => mDetails;
 
         public virtual int code()
         {
             return response == null ? -1 : (int)response.StatusCode;
         }
-
-        public override string Message
-        {
-            get
-            {
-                return response == null ? base.Message : response.ToString();
-            }
-        }
-
-        public virtual string Details
-        {
-            get
-            {
-                return mDetails;
-            }
-        }
     }
-
 }

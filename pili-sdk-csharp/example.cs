@@ -1,17 +1,15 @@
-﻿using pili_sdk_csharp.pili;
-using pili_sdk_csharp.pili_qiniu;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using pili_sdk_csharp.pili;
+using pili_sdk_csharp.pili_qiniu;
+
 namespace pili_sdk_csharp
 {
-    class example
+    internal class example
     {
         // Replace with your keys here
         private const string ACCESS_KEY = "";
+
         private const string SECRET_KEY = "";
 
         // Replace with your hub name
@@ -25,20 +23,19 @@ namespace pili_sdk_csharp
         // static {
         //     Configuration.getInstance().setAPIHost("pili.qiniuapi.com"); // default
         // }
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             testCreatStream();
-          //测试推流后才能执行操作的函数，需要填写生成的流的id。
-         // testTuiStream("z1.liuhanlin.561f62c5fb16df53010003ed");
+            //测试推流后才能执行操作的函数，需要填写生成的流的id。
+            // testTuiStream("z1.liuhanlin.561f62c5fb16df53010003ed");
             Console.ReadKey();
-
         }
-     
+
         public static void testStream(string streamid)
         {
             Stream stream = null;
-            Credentials credentials = new Credentials(ACCESS_KEY, SECRET_KEY); // Credentials Object
-            Hub hub = new Hub(credentials, HUB_NAME);
+            var credentials = new Credentials(ACCESS_KEY, SECRET_KEY); // Credentials Object
+            var hub = new Hub(credentials, HUB_NAME);
             //get a stream
             try
             {
@@ -88,11 +85,11 @@ namespace pili_sdk_csharp
             {
                 long start = 0; // optional, in second, unix timestamp
                 long end = 0; // optional, in second, unix timestamp
-                int limit = 0; // optional, int
-                Stream.SegmentList segmentList = stream.segments(start, end, limit);
+                var limit = 0; // optional, int
+                var segmentList = stream.segments(start, end, limit);
 
                 Console.WriteLine("Stream segments()");
-                foreach (Stream.Segment segment in segmentList.getSegmentList())
+                foreach (var segment in segmentList.getSegmentList())
                 {
                     Console.WriteLine("start:" + segment.Start + ",end:" + segment.End);
                 }
@@ -108,14 +105,14 @@ namespace pili_sdk_csharp
             }
 
             // Snapshot Stream
-            string format = "jpg"; // required
-            string name = "imageName" + "." + format; // required
+            var format = "jpg"; // required
+            var name = "imageName" + "." + format; // required
             long time = 1440315411; // optional, in second, unix timestamp
             string notifyUrl = null; // optional
 
             try
             {
-                Stream.SnapshotResponse response = stream.snapshot(name, format, time, notifyUrl);
+                var response = stream.snapshot(name, format, time, notifyUrl);
                 Console.WriteLine("Stream snapshot()");
                 Console.WriteLine(response.ToString());
                 /*
@@ -133,15 +130,15 @@ namespace pili_sdk_csharp
             }
 
             // Save Stream as a file
-            string saveAsFormat = "mp4"; // required
-            string saveAsName = "videoName" + "." + saveAsFormat; // required
+            var saveAsFormat = "mp4"; // required
+            var saveAsName = "videoName" + "." + saveAsFormat; // required
             long saveAsStart = 1444897613; // required, in second, unix timestampstart:1444897613,end:1444897973
             long saveAsEnd = 1444897973; // required, in second, unix timestamp
             string saveAsNotifyUrl = null; // optional
             string pipleline = null;
             try
             {
-                Stream.SaveAsResponse response = stream.saveAs(saveAsName, saveAsFormat, saveAsStart, saveAsEnd, saveAsNotifyUrl,pipleline);
+                var response = stream.saveAs(saveAsName, saveAsFormat, saveAsStart, saveAsEnd, saveAsNotifyUrl, pipleline);
                 Console.WriteLine("Stream saveAs()");
                 Console.WriteLine(response.ToString());
                 /*
@@ -162,7 +159,7 @@ namespace pili_sdk_csharp
             // Delete a Stream
             try
             {
-                string res = stream.delete();
+                var res = stream.delete();
                 Console.WriteLine("Stream delete()");
                 Console.WriteLine(res);
                 // No Content
@@ -220,9 +217,8 @@ namespace pili_sdk_csharp
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-
-
         }
+
         public static void testCreatStream()
         {
             //////////////////////////////////////////////////////////////////////////////////////////
@@ -230,8 +226,8 @@ namespace pili_sdk_csharp
             //////////////////////////////////////////////////////////////////////////////////////////
 
             // Instantiate an Hub object
-            Credentials credentials = new Credentials(ACCESS_KEY, SECRET_KEY); // Credentials Object
-            Hub hub = new Hub(credentials, HUB_NAME);
+            var credentials = new Credentials(ACCESS_KEY, SECRET_KEY); // Credentials Object
+            var hub = new Hub(credentials, HUB_NAME);
             Console.WriteLine(hub.ToString());
 
             // Create a new Stream
@@ -319,11 +315,11 @@ namespace pili_sdk_csharp
                 long limit = 0; // optional
                 string titlePrefix = null; // optional
 
-                Stream.StreamList streamList = hub.listStreams(marker, limit, titlePrefix);
+                var streamList = hub.listStreams(marker, limit, titlePrefix);
                 Console.WriteLine("hub.listStreams()");
                 Console.WriteLine("marker:" + streamList.Marker);
-                IList<Stream> list = streamList.Streams;
-                foreach (Stream s in list)
+                var list = streamList.Streams;
+                foreach (var s in list)
                 {
                     // access the stream
                 }
@@ -346,7 +342,7 @@ namespace pili_sdk_csharp
             //////////////////////////////////////////////////////////////////////////////////////////
             // Stream begin
             //////////////////////////////////////////////////////////////////////////////////////////
-            string streamJsonString = stream.toJsonString();
+            var streamJsonString = stream.toJsonString();
             Console.WriteLine("Stream toJSONString()");
             Console.WriteLine(streamJsonString);
 
@@ -376,12 +372,12 @@ namespace pili_sdk_csharp
              */
 
             // Update a Stream
-            string newPublishKey = "new_secret_words"; // optional
-            string newPublishSecurity = "static"; // optional, can be "dynamic" or "static"
-            bool newDisabled = true; // optional, can be "true" of "false"
+            var newPublishKey = "new_secret_words"; // optional
+            var newPublishSecurity = "static"; // optional, can be "dynamic" or "static"
+            var newDisabled = true; // optional, can be "true" of "false"
             try
             {
-                Stream newStream = stream.update(newPublishKey, newPublishSecurity, newDisabled);
+                var newStream = stream.update(newPublishKey, newPublishSecurity, newDisabled);
                 Console.WriteLine("Stream update()");
                 Console.WriteLine(newStream.toJsonString());
                 stream = newStream;
@@ -420,7 +416,7 @@ namespace pili_sdk_csharp
             // Disable a Stream
             try
             {
-                Stream disabledStream = stream.disable();
+                var disabledStream = stream.disable();
                 Console.WriteLine("Stream disable()");
                 Console.WriteLine(disabledStream.Disabled);
                 /*
@@ -437,7 +433,7 @@ namespace pili_sdk_csharp
             // Enable a Stream
             try
             {
-                Stream enabledStream = stream.enable();
+                var enabledStream = stream.enable();
                 Console.WriteLine("Stream enable()");
                 Console.WriteLine(enabledStream.Disabled);
                 /*
@@ -454,7 +450,7 @@ namespace pili_sdk_csharp
             // Get Stream status
             try
             {
-                Stream.Status status = stream.status();
+                var status = stream.status();
                 Console.WriteLine("Stream status()");
                 Console.WriteLine(status.ToString());
                 /*
@@ -480,11 +476,10 @@ namespace pili_sdk_csharp
             // Generate RTMP publish URL
             try
             {
-                string publishUrl = stream.rtmpPublishUrl();
+                var publishUrl = stream.rtmpPublishUrl();
                 Console.WriteLine("Stream rtmpPublishUrl()");
                 Console.WriteLine(publishUrl);
                 // rtmp://ey636h.publish.z1.pili.qiniup.com/test-hub/55d810aae3ba5723280000db?nonce=1440223404&token=hIVJje0ZOX9hp7yPIvGBmJ_6Qxo=
-
             }
             catch (PiliException e)
             {
@@ -493,24 +488,22 @@ namespace pili_sdk_csharp
                 Console.Write(e.StackTrace);
             }
             // Generate RTMP live play URLs
-            string originUrl = (stream.rtmpLiveUrls())[Stream.ORIGIN];
+            var originUrl = stream.rtmpLiveUrls()[Stream.ORIGIN];
             Console.WriteLine("Stream rtmpLiveUrls()");
             Console.WriteLine(originUrl);
             // rtmp://ey636h.live1-rtmp.z1.pili.qiniucdn.com/test-hub/55d8113ee3ba5723280000dc
 
             // Generate HLS play URLs
-            string originLiveHlsUrl = stream.hlsLiveUrls()[Stream.ORIGIN];
+            var originLiveHlsUrl = stream.hlsLiveUrls()[Stream.ORIGIN];
             Console.WriteLine("Stream hlsLiveUrls()");
             Console.WriteLine(originLiveHlsUrl);
             // http://ey636h.live1-http.z1.pili.qiniucdn.com/test-hub/55d8119ee3ba5723280000dd.m3u8
 
             // Generate Http-Flv live play URLs
-            string originLiveFlvUrl = stream.httpFlvLiveUrls()[Stream.ORIGIN];
+            var originLiveFlvUrl = stream.httpFlvLiveUrls()[Stream.ORIGIN];
             Console.WriteLine("Stream httpFlvLiveUrls()");
             Console.WriteLine(originLiveFlvUrl);
             // http://ey636h.live1-http.z1.pili.qiniucdn.com/test-hub/55d8119ee3ba5723280000dd.flv
-
-
 
 
             // Generate HLS playback URLs
@@ -518,7 +511,7 @@ namespace pili_sdk_csharp
             long endHlsPlayback = 1440315435; // required, in second, unix timestamp
             try
             {
-                string hlsPlaybackUrl = stream.hlsPlaybackUrls(startHlsPlayback, endHlsPlayback)[Stream.ORIGIN];
+                var hlsPlaybackUrl = stream.hlsPlaybackUrls(startHlsPlayback, endHlsPlayback)[Stream.ORIGIN];
 
                 Console.WriteLine("Stream hlsPlaybackUrls()");
                 Console.WriteLine(hlsPlaybackUrl);
@@ -532,11 +525,10 @@ namespace pili_sdk_csharp
             }
 
 
-
             // Get Stream status
             try
             {
-                Stream.Status status = stream.status();
+                var status = stream.status();
                 Console.WriteLine("Stream status()");
                 Console.WriteLine(status.ToString());
                 /*
@@ -560,11 +552,10 @@ namespace pili_sdk_csharp
             }
 
 
-
             // Delete a Stream
             try
             {
-                string res = stream.delete();
+                var res = stream.delete();
                 Console.WriteLine("Stream delete()");
                 Console.WriteLine(res);
                 // No Content
@@ -615,6 +606,5 @@ namespace pili_sdk_csharp
                 Console.Write(e.StackTrace);
             }
         }
-    
     }
 }

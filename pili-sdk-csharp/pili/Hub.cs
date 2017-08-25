@@ -1,25 +1,23 @@
-﻿using StreamList = pili_sdk_csharp.pili.Stream.StreamList;
-using Credentials = pili_sdk_csharp.pili_qiniu.Credentials;
-using MessageConfig = pili_sdk_csharp.pili_common.MessageConfig;
-
+﻿using System;
+using pili_sdk_csharp.pili_common;
+using pili_sdk_csharp.pili_qiniu;
 
 namespace pili_sdk_csharp.pili
 {
-
     public class Hub
     {
+        private readonly Credentials mCredentials;
+        private readonly string mHubName;
 
-        private Credentials mCredentials;
-        private string mHubName;
         public Hub(Credentials credentials, string hubName)
         {
             if (hubName == null)
             {
-                throw new System.ArgumentException(MessageConfig.NULL_HUBNAME_EXCEPTION_MSG);
+                throw new ArgumentException(MessageConfig.NULL_HUBNAME_EXCEPTION_MSG);
             }
             if (credentials == null)
             {
-                throw new System.ArgumentException(MessageConfig.NULL_CREDENTIALS_EXCEPTION_MSG);
+                throw new ArgumentException(MessageConfig.NULL_CREDENTIALS_EXCEPTION_MSG);
             }
             mCredentials = credentials;
             mHubName = hubName;
@@ -42,23 +40,21 @@ namespace pili_sdk_csharp.pili
         }
 
 
-        public virtual StreamList listStreams()
+        public virtual Stream.StreamList listStreams()
         {
             return API.listStreams(mCredentials, mHubName, null, 0, null);
         }
 
 
-        public virtual StreamList listStreams(string marker, long limit)
+        public virtual Stream.StreamList listStreams(string marker, long limit)
         {
             return API.listStreams(mCredentials, mHubName, marker, limit, null);
         }
 
 
-        public virtual StreamList listStreams(string marker, long limit, string titlePrefix)
+        public virtual Stream.StreamList listStreams(string marker, long limit, string titlePrefix)
         {
             return API.listStreams(mCredentials, mHubName, marker, limit, titlePrefix);
         }
-
     }
-
 }

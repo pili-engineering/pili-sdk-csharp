@@ -1,9 +1,11 @@
-﻿
+﻿using System;
+
 internal static class DateTimeHelperClass
 {
-    private static readonly System.DateTime Jan1st1970 = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+    private static readonly DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
     internal static long CurrentUnixTimeMillis()
     {
-        return (long)(System.DateTime.UtcNow - Jan1st1970).TotalMilliseconds;
+        return (long)(DateTime.UtcNow - Jan1st1970).TotalMilliseconds;
     }
 }
