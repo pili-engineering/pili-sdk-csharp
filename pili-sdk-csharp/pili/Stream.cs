@@ -326,7 +326,7 @@ namespace pili_sdk_csharp.pili
             public Status(JObject jsonObj)
             {
                 Addr = jsonObj["addr"].ToString();
-                _status = jsonObj["CurrentStatus"].ToString();
+                _status = jsonObj["status"].ToString();
                 var startFrominit = (DateTime)jsonObj["startFrom"];
                 StartFrom = startFrominit.ToString("yyyy-MM-ddTHH:mm:ssZ");
                 try

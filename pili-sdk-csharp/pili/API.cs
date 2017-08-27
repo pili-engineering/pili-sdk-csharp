@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Web;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,11 +10,12 @@ using pili_sdk_csharp.pili_qiniu;
 
 namespace pili_sdk_csharp.pili
 {
-    public class API
+    public static class API
     {
+        private const string ContentType = "application/json";
+
         private static readonly string APIBaseUrl =
             $"{(Configuration.Instance.UseHttps ? "https" : "http")}://{Configuration.Instance.API_HOST}/{Configuration.Instance.API_VERSION}";
-        private static HttpWebRequest _mOkHttpClient;
 
         public static Stream CreateStream(Credentials credentials, string hubName, string title, string publishKey, string publishSecurity)
         {
@@ -27,7 +27,7 @@ namespace pili_sdk_csharp.pili
             {
                 { "hub", hubName }
             };
-            if (string.IsNullOrWhiteSpace(title))
+            if (!string.IsNullOrWhiteSpace(title))
             {
                 if (title.Length < Config.TitleMinLength || title.Length > Config.TitleMaxLength)
                 {
@@ -35,11 +35,11 @@ namespace pili_sdk_csharp.pili
                 }
                 json.Add("title", title);
             }
-            if (string.IsNullOrWhiteSpace(publishKey))
+            if (!string.IsNullOrWhiteSpace(publishKey))
             {
                 json.Add("publishKey", publishKey);
             }
-            if (string.IsNullOrWhiteSpace(publishSecurity))
+            if (!string.IsNullOrWhiteSpace(publishSecurity))
             {
                 json.Add("publishSecurity", publishSecurity);
             }
@@ -47,21 +47,25 @@ namespace pili_sdk_csharp.pili
             try
             {
                 var url = new Uri(urlStr);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
-                var contentType = "application/json";
-                _mOkHttpClient.Method = WebRequestMethods.Http.Post;
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "POST";
                 var jsonobj = JsonConvert.SerializeObject(json);
                 var body = Encoding.UTF8.GetBytes(jsonobj);
-                var macToken = credentials.SignRequest(url, "POST", body, contentType);
-                _mOkHttpClient.ContentType = contentType;
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
-                _mOkHttpClient.ContentLength = body.Length;
-                using (var requestStream = _mOkHttpClient.GetRequestStream())
+                var macToken = credentials.SignRequest(url, "POST", body, ContentType);
+                request.ContentType = ContentType;
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
+
+                using (var requestStream = request.GetRequestStreamAsync().Result)
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
 
             catch (Exception e)
@@ -103,12 +107,17 @@ namespace pili_sdk_csharp.pili
             try
             {
                 var url = new Uri(urlStr);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
-                _mOkHttpClient.Method = WebRequestMethods.Http.Get;
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
                 var macToken = credentials.SignRequest(url, "GET", null, null);
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
             {
@@ -141,10 +150,10 @@ namespace pili_sdk_csharp.pili
         {
             try
             {
-                hubName = HttpUtility.UrlEncode(hubName);
-                if (string.IsNullOrWhiteSpace(startMarker))
+                hubName = WebUtility.UrlEncode(hubName);
+                if (!string.IsNullOrWhiteSpace(startMarker))
                 {
-                    startMarker = HttpUtility.UrlEncode(startMarker);
+                    startMarker = WebUtility.UrlEncode(startMarker);
                 }
             }
             catch (Exception e)
@@ -154,7 +163,7 @@ namespace pili_sdk_csharp.pili
                 throw new PiliException(e);
             }
             var urlStr = $"{APIBaseUrl}/streams?hub={hubName}";
-            if (string.IsNullOrWhiteSpace(startMarker))
+            if (!string.IsNullOrWhiteSpace(startMarker))
             {
                 urlStr += "&marker=" + startMarker;
             }
@@ -162,7 +171,7 @@ namespace pili_sdk_csharp.pili
             {
                 urlStr += "&limit=" + limitCount;
             }
-            if (string.IsNullOrWhiteSpace(titlePrefix))
+            if (!string.IsNullOrWhiteSpace(titlePrefix))
             {
                 urlStr += "&title=" + titlePrefix;
             }
@@ -171,11 +180,16 @@ namespace pili_sdk_csharp.pili
             {
                 var url = new Uri(urlStr);
                 var macToken = credentials.SignRequest(url, "GET", null, null);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
-                _mOkHttpClient.Method = WebRequestMethods.Http.Get;
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
             {
@@ -211,17 +225,22 @@ namespace pili_sdk_csharp.pili
             {
                 throw new PiliException(MessageConfig.NullStreamIdExceptionMsg);
             }
-            var urlStr = $"{APIBaseUrl}/streams/{streamId}/CurrentStatus";
+            var urlStr = $"{APIBaseUrl}/streams/{streamId}/status";
             HttpWebResponse response;
             try
             {
                 var url = new Uri(urlStr);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
+                var request = (HttpWebRequest)WebRequest.Create(url);
                 var macToken = credentials.SignRequest(url, "GET", null, null);
-                _mOkHttpClient.Method = WebRequestMethods.Http.Get;
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+                request.Method = "GET";
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
             {
@@ -258,11 +277,11 @@ namespace pili_sdk_csharp.pili
             {
                 throw new PiliException(MessageConfig.NullStreamIdExceptionMsg);
             }
-            if (string.IsNullOrWhiteSpace(publishKey))
+            if (!string.IsNullOrWhiteSpace(publishKey))
             {
                 json.Add("publishKey", publishKey);
             }
-            if (string.IsNullOrWhiteSpace(publishSecurity))
+            if (!string.IsNullOrWhiteSpace(publishSecurity))
             {
                 json.Add("publishSecurity", publishSecurity);
             }
@@ -275,20 +294,23 @@ namespace pili_sdk_csharp.pili
                 var url = new Uri(urlStr);
                 var jsonobj = JsonConvert.SerializeObject(json);
                 var body = Encoding.UTF8.GetBytes(jsonobj);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
-                var contentType = "application/json";
-                var macToken = credentials.SignRequest(url, "POST", body, contentType);
-                _mOkHttpClient.Method = WebRequestMethods.Http.Post;
-                _mOkHttpClient.ContentType = contentType;
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
-                _mOkHttpClient.ContentLength = body.Length;
-                using (var requestStream = _mOkHttpClient.GetRequestStream())
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                var macToken = credentials.SignRequest(url, "POST", body, ContentType);
+                request.Method = "POST";
+                request.ContentType = ContentType;
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
+                using (var requestStream = request.GetRequestStreamAsync().Result)
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
 
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
             {
@@ -330,13 +352,18 @@ namespace pili_sdk_csharp.pili
             try
             {
                 var url = new Uri(urlStr);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
+                var request = (HttpWebRequest)WebRequest.Create(url);
                 var macToken = credentials.SignRequest(url, "DELETE", null, null);
-                _mOkHttpClient.Method = "DELETE";
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
+                request.Method = "DELETE";
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
                 Console.WriteLine(macToken);
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
             {
@@ -363,7 +390,7 @@ namespace pili_sdk_csharp.pili
                 throw new PiliException(MessageConfig.NullStreamIdExceptionMsg);
             }
 
-            if (!string.IsNullOrWhiteSpace(fileName))
+            if (string.IsNullOrWhiteSpace(fileName))
             {
                 throw new PiliException(MessageConfig.IllegalFileNameExceptionMsg);
             }
@@ -379,7 +406,7 @@ namespace pili_sdk_csharp.pili
             {
                 { "name", fileName }
             };
-            if (string.IsNullOrWhiteSpace(notifyUrl))
+            if (!string.IsNullOrWhiteSpace(notifyUrl))
             {
                 json.Add("notifyUrl", notifyUrl);
             }
@@ -400,20 +427,23 @@ namespace pili_sdk_csharp.pili
             try
             {
                 var url = new Uri(urlStr);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
-                var contentType = "application/json";
+                var request = (HttpWebRequest)WebRequest.Create(url);
                 var body = Encoding.UTF8.GetBytes(json.ToString());
-                var macToken = credentials.SignRequest(url, "POST", body, contentType);
-                _mOkHttpClient.Method = WebRequestMethods.Http.Post;
-                _mOkHttpClient.ContentType = contentType;
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
-                _mOkHttpClient.ContentLength = body.Length;
-                using (var requestStream = _mOkHttpClient.GetRequestStream())
+                var macToken = credentials.SignRequest(url, "POST", body, ContentType);
+                request.Method = "POST";
+                request.ContentType = ContentType;
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
+                using (var requestStream = request.GetRequestStreamAsync().Result)
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
             {
@@ -448,12 +478,12 @@ namespace pili_sdk_csharp.pili
                 throw new PiliException(MessageConfig.NullStreamIdExceptionMsg);
             }
 
-            if (!string.IsNullOrWhiteSpace(fileName))
+            if (string.IsNullOrWhiteSpace(fileName))
             {
                 throw new PiliException(MessageConfig.IllegalFileNameExceptionMsg);
             }
 
-            if (!string.IsNullOrWhiteSpace(format))
+            if (string.IsNullOrWhiteSpace(format))
             {
                 throw new PiliException(MessageConfig.IllegalFormatExceptionMsg);
             }
@@ -469,7 +499,7 @@ namespace pili_sdk_csharp.pili
             {
                 json.Add("time", time);
             }
-            if (string.IsNullOrWhiteSpace(notifyUrl))
+            if (!string.IsNullOrWhiteSpace(notifyUrl))
             {
                 json.Add("notifyUrl", notifyUrl); // optional
             }
@@ -477,20 +507,23 @@ namespace pili_sdk_csharp.pili
             try
             {
                 var url = new Uri(urlStr);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
-                var contentType = "application/json";
+                var request = (HttpWebRequest)WebRequest.Create(url);
                 var body = Encoding.UTF8.GetBytes(json.ToString());
-                var macToken = credentials.SignRequest(url, "POST", body, contentType);
-                _mOkHttpClient.Method = WebRequestMethods.Http.Post;
-                _mOkHttpClient.ContentType = contentType;
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
-                _mOkHttpClient.ContentLength = body.Length;
-                using (var requestStream = _mOkHttpClient.GetRequestStream())
+                var macToken = credentials.SignRequest(url, "POST", body, ContentType);
+                request.Method = "POST";
+                request.ContentType = ContentType;
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
+                using (var requestStream = request.GetRequestStreamAsync().Result)
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
             {
@@ -539,11 +572,16 @@ namespace pili_sdk_csharp.pili
             {
                 var url = new Uri(urlStr);
                 var macToken = credentials.SignRequest(url, "GET", null, null);
-                _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
-                _mOkHttpClient.Method = WebRequestMethods.Http.Get;
-                _mOkHttpClient.UserAgent = Utils.UserAgent;
-                _mOkHttpClient.Headers.Add("Authorization", macToken);
-                response = (HttpWebResponse)_mOkHttpClient.GetResponse();
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+#if NET45
+                request.UserAgent = Utils.UserAgent;
+                request.Headers.Add("Authorization", macToken);
+#else
+                request.Headers["User-Agent"] = Utils.UserAgent;
+                request.Headers["Authorization"] = macToken;
+#endif
+                response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
             {
@@ -672,13 +710,16 @@ namespace pili_sdk_csharp.pili
             return dictionary;
         }
 
-        private static string GenerateStaticUrl(Stream stream, string scheme) => $"{scheme}://{stream.PublishRtmpHost}/{stream.HubName}/{stream.Title}?key={stream.PublishKey}";
+        private static string GenerateStaticUrl(Stream stream, string scheme)
+        {
+            return $"{scheme}://{stream.PublishRtmpHost}/{stream.HubName}/{stream.Title}?key={stream.PublishKey}";
+        }
 
         private static string GenerateDynamicUrl(Stream stream, long nonce, string scheme)
         {
             if (nonce <= 0)
             {
-                nonce = DateTimeHelper.CurrentUnixTimeMillis() / 1000; // the unit should be second
+                nonce = DateTimeHelper.CurrentUnixTimeSeconds();
             }
 
             var baseUri = "/" + stream.HubName + "/" + stream.Title + "?nonce=" + nonce;
