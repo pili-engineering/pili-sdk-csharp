@@ -8,19 +8,16 @@ namespace pili_sdk_csharp.pili_qiniu
     public class Credentials
     {
         private const string DigestAuthPrefix = "Qiniu";
-        private readonly string _mAccessKey;
-        private readonly HMACSHA1 _mSkSpec;
+        private readonly string _accessKey;
+        private readonly HMACSHA1 _skSpec;
 
         public Credentials(string ak, string sk)
         {
-            if (ak == null || sk == null)
-            {
-                throw new ArgumentException("Invalid accessKey or secretKey!!");
-            }
-            _mAccessKey = ak;
+            _accessKey = ak ?? throw new ArgumentNullException(nameof(ak), "Invalid accessKey!");
+            var mSecretKey = sk ?? throw new ArgumentNullException(nameof(sk), "Invalid secretKey!!");
             try
             {
-                _mSkSpec = new HMACSHA1(sk.GetBytes(Config.Utf8));
+                _skSpec = new HMACSHA1(Encoding.UTF8.GetBytes(mSecretKey));
             }
             catch (Exception e)
             {
@@ -44,12 +41,11 @@ namespace pili_sdk_csharp.pili_qiniu
 
             // Host: <Host>
             sb.Append($"\nHost: {url.Host}");
-
-
             if (url.Port != 80)
             {
                 sb.Append($":{url.Port}");
             }
+
             // Content-Type: <Content-Type>
             if (contentType != null)
             {
@@ -58,11 +54,11 @@ namespace pili_sdk_csharp.pili_qiniu
 
             // body
             sb.Append("\n\n");
-            if (body != null && contentType != null && !"application/octet-stream".Equals(contentType))
+            if (body != null && contentType != null && contentType != "application/octet-stream")
             {
-                sb.Append(StringHelperClass.NewString(body));
+                sb.Append(Encoding.UTF8.GetString(body));
             }
-            return $"{DigestAuthPrefix} {_mAccessKey}:{SignData(sb.ToString())}";
+            return $"{DigestAuthPrefix} {_accessKey}:{SignData(sb.ToString())}";
         }
 
         private static byte[] Digest(string secret, string data)
@@ -85,7 +81,6 @@ namespace pili_sdk_csharp.pili_qiniu
             }
         }
 
-
         public static string Sign(string secret, string data)
         {
             return UrlSafeBase64.EncodeToString(Digest(secret, data));
@@ -96,10 +91,9 @@ namespace pili_sdk_csharp.pili_qiniu
             string sign;
             try
             {
-                var mac = CreateMac(_mSkSpec);
                 var encoding = Encoding.UTF8;
                 var newdata = encoding.GetBytes(data);
-                var digest = mac.ComputeHash(newdata);
+                var digest = _skSpec.ComputeHash(newdata);
                 sign = UrlSafeBase64.EncodeToString(digest);
             }
             catch (Exception e)
@@ -107,12 +101,6 @@ namespace pili_sdk_csharp.pili_qiniu
                 throw new Exception("Failed to generate HMAC : " + e.Message);
             }
             return sign;
-        }
-
-        private static HMACSHA1 CreateMac(HMACSHA1 secretKeySpec)
-        {
-            var mac = secretKeySpec;
-            return mac;
         }
     }
 }

@@ -378,7 +378,7 @@ namespace pili_sdk_csharp.pili
                 {
                     var record = jsonObj["items"];
                     _itemList = new List<Stream>();
-                    foreach (JObject jp in record)
+                    foreach (var jp in record)
                     {
                         _itemList.Add(new Stream(JObject.Parse(jp.ToString()), auth));
                     }

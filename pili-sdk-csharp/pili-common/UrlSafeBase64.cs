@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace pili_sdk_csharp.pili_common
 {
@@ -8,7 +9,7 @@ namespace pili_sdk_csharp.pili_common
         {
             try
             {
-                return EncodeToString(data.GetBytes(Config.Utf8));
+                return EncodeToString(Encoding.UTF8.GetBytes(data));
             }
             catch (Exception e)
             {
@@ -20,12 +21,18 @@ namespace pili_sdk_csharp.pili_common
 
         public static string EncodeToString(byte[] data)
         {
-            return Base64.EncodeToString(data, Base64.UrlSafe | Base64.NoWrap);
+            return Convert.ToBase64String(data)
+                .Replace('+', '-').Replace('/', '_')
+                .TrimEnd('=');
         }
 
-        public static byte[] Decode(string data)
+        public static byte[] Decode(string base64)
         {
-            return Base64.Decode(data, Base64.UrlSafe | Base64.NoWrap);
+            base64 = base64
+                .PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=')
+                .Replace('_', '/').Replace('-', '+');
+
+            return Convert.FromBase64String(base64);
         }
     }
 }

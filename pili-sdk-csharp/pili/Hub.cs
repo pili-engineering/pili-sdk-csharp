@@ -15,7 +15,6 @@ namespace pili_sdk_csharp.pili
             _mHubName = hubName ?? throw new ArgumentException(MessageConfig.NullHubnameExceptionMsg);
         }
 
-
         public virtual Stream CreateStream()
         {
             return API.CreateStream(_mCredentials, _mHubName, null, null, null);
@@ -31,18 +30,15 @@ namespace pili_sdk_csharp.pili
             return API.GetStream(_mCredentials, streamId);
         }
 
-
         public virtual Stream.StreamList ListStreams()
         {
             return API.ListStreams(_mCredentials, _mHubName, null, 0, null);
         }
 
-
         public virtual Stream.StreamList ListStreams(string marker, long limit)
         {
             return API.ListStreams(_mCredentials, _mHubName, marker, limit, null);
         }
-
 
         public virtual Stream.StreamList ListStreams(string marker, long limit, string titlePrefix)
         {

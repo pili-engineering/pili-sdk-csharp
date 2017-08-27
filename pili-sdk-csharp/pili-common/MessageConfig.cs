@@ -9,6 +9,6 @@
         public const string IllegalTimeMsg = "Illegal startTime or endTime!";
         public const string IllegalFileNameExceptionMsg = "Illegal file name !";
         public const string IllegalFormatExceptionMsg = "Illegal format !";
-        public static readonly string IllegalTitleMsg = "The length of title should be at least:" + Config.TitleMinLength + ",or at most:" + Config.TitleMaxLength;
+        public static readonly string IllegalTitleMsg = $"The length of title should be at least: {Config.TitleMinLength}, or at most: {Config.TitleMaxLength}";
     }
 }

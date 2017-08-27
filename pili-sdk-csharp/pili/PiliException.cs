@@ -37,7 +37,7 @@ namespace pili_sdk_csharp.pili
             Response = null;
         }
 
-        public PiliException(Exception e)
+        public PiliException(Exception e) : base(null, e)
         {
             Response = null;
         }

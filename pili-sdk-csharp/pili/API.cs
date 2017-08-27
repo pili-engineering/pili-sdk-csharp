@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Web;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using pili_sdk_csharp.pili_common;
@@ -14,7 +15,6 @@ namespace pili_sdk_csharp.pili
     {
         private static readonly string APIBaseUrl =
             $"{(Configuration.Instance.UseHttps ? "https" : "http")}://{Configuration.Instance.API_HOST}/{Configuration.Instance.API_VERSION}";
-
         private static HttpWebRequest _mOkHttpClient;
 
         public static Stream CreateStream(Credentials credentials, string hubName, string title, string publishKey, string publishSecurity)
@@ -27,7 +27,7 @@ namespace pili_sdk_csharp.pili
             {
                 { "hub", hubName }
             };
-            if (Utils.IsArgNotEmpty(title))
+            if (string.IsNullOrWhiteSpace(title))
             {
                 if (title.Length < Config.TitleMinLength || title.Length > Config.TitleMaxLength)
                 {
@@ -35,11 +35,11 @@ namespace pili_sdk_csharp.pili
                 }
                 json.Add("title", title);
             }
-            if (Utils.IsArgNotEmpty(publishKey))
+            if (string.IsNullOrWhiteSpace(publishKey))
             {
                 json.Add("publishKey", publishKey);
             }
-            if (Utils.IsArgNotEmpty(publishSecurity))
+            if (string.IsNullOrWhiteSpace(publishSecurity))
             {
                 json.Add("publishSecurity", publishSecurity);
             }
@@ -51,7 +51,7 @@ namespace pili_sdk_csharp.pili
                 var contentType = "application/json";
                 _mOkHttpClient.Method = WebRequestMethods.Http.Post;
                 var jsonobj = JsonConvert.SerializeObject(json);
-                var body = jsonobj.GetBytes(Config.Utf8);
+                var body = Encoding.UTF8.GetBytes(jsonobj);
                 var macToken = credentials.SignRequest(url, "POST", body, contentType);
                 _mOkHttpClient.ContentType = contentType;
                 _mOkHttpClient.UserAgent = Utils.UserAgent;
@@ -59,7 +59,7 @@ namespace pili_sdk_csharp.pili
                 _mOkHttpClient.ContentLength = body.Length;
                 using (var requestStream = _mOkHttpClient.GetRequestStream())
                 {
-                    Utils.CopyN(requestStream, new MemoryStream(body), body.Length);
+                    new MemoryStream(body).CopyTo(requestStream);
                 }
                 response = (HttpWebResponse)_mOkHttpClient.GetResponse();
             }
@@ -142,7 +142,7 @@ namespace pili_sdk_csharp.pili
             try
             {
                 hubName = HttpUtility.UrlEncode(hubName);
-                if (Utils.IsArgNotEmpty(startMarker))
+                if (string.IsNullOrWhiteSpace(startMarker))
                 {
                     startMarker = HttpUtility.UrlEncode(startMarker);
                 }
@@ -154,7 +154,7 @@ namespace pili_sdk_csharp.pili
                 throw new PiliException(e);
             }
             var urlStr = $"{APIBaseUrl}/streams?hub={hubName}";
-            if (Utils.IsArgNotEmpty(startMarker))
+            if (string.IsNullOrWhiteSpace(startMarker))
             {
                 urlStr += "&marker=" + startMarker;
             }
@@ -162,7 +162,7 @@ namespace pili_sdk_csharp.pili
             {
                 urlStr += "&limit=" + limitCount;
             }
-            if (Utils.IsArgNotEmpty(titlePrefix))
+            if (string.IsNullOrWhiteSpace(titlePrefix))
             {
                 urlStr += "&title=" + titlePrefix;
             }
@@ -258,16 +258,15 @@ namespace pili_sdk_csharp.pili
             {
                 throw new PiliException(MessageConfig.NullStreamIdExceptionMsg);
             }
-            if (Utils.IsArgNotEmpty(publishKey))
+            if (string.IsNullOrWhiteSpace(publishKey))
             {
                 json.Add("publishKey", publishKey);
             }
-            if (Utils.IsArgNotEmpty(publishSecurity))
+            if (string.IsNullOrWhiteSpace(publishSecurity))
             {
                 json.Add("publishSecurity", publishSecurity);
             }
             json.Add("disabled", disabled);
-
 
             var urlStr = $"{APIBaseUrl}/streams/{streamId}";
             HttpWebResponse response;
@@ -275,7 +274,7 @@ namespace pili_sdk_csharp.pili
             {
                 var url = new Uri(urlStr);
                 var jsonobj = JsonConvert.SerializeObject(json);
-                var body = jsonobj.GetBytes(Config.Utf8);
+                var body = Encoding.UTF8.GetBytes(jsonobj);
                 _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
                 var contentType = "application/json";
                 var macToken = credentials.SignRequest(url, "POST", body, contentType);
@@ -286,7 +285,7 @@ namespace pili_sdk_csharp.pili
                 _mOkHttpClient.ContentLength = body.Length;
                 using (var requestStream = _mOkHttpClient.GetRequestStream())
                 {
-                    Utils.CopyN(requestStream, new MemoryStream(body), body.Length);
+                    new MemoryStream(body).CopyTo(requestStream);
                 }
 
                 response = (HttpWebResponse)_mOkHttpClient.GetResponse();
@@ -364,17 +363,15 @@ namespace pili_sdk_csharp.pili
                 throw new PiliException(MessageConfig.NullStreamIdExceptionMsg);
             }
 
-            if (!Utils.IsArgNotEmpty(fileName))
+            if (!string.IsNullOrWhiteSpace(fileName))
             {
                 throw new PiliException(MessageConfig.IllegalFileNameExceptionMsg);
             }
-
 
             if (start < 0 || end < 0 || start > end)
             {
                 throw new PiliException(MessageConfig.IllegalTimeMsg);
             }
-
 
             var urlStr = $"{APIBaseUrl}/streams/{streamId}/saveas";
             HttpWebResponse response;
@@ -382,7 +379,7 @@ namespace pili_sdk_csharp.pili
             {
                 { "name", fileName }
             };
-            if (Utils.IsArgNotEmpty(notifyUrl))
+            if (string.IsNullOrWhiteSpace(notifyUrl))
             {
                 json.Add("notifyUrl", notifyUrl);
             }
@@ -400,13 +397,12 @@ namespace pili_sdk_csharp.pili
                 json.Add("pipleline", pipleline);
             }
 
-
             try
             {
                 var url = new Uri(urlStr);
                 _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
                 var contentType = "application/json";
-                var body = json.ToString().GetBytes(Config.Utf8);
+                var body = Encoding.UTF8.GetBytes(json.ToString());
                 var macToken = credentials.SignRequest(url, "POST", body, contentType);
                 _mOkHttpClient.Method = WebRequestMethods.Http.Post;
                 _mOkHttpClient.ContentType = contentType;
@@ -415,7 +411,7 @@ namespace pili_sdk_csharp.pili
                 _mOkHttpClient.ContentLength = body.Length;
                 using (var requestStream = _mOkHttpClient.GetRequestStream())
                 {
-                    Utils.CopyN(requestStream, new MemoryStream(body), body.Length);
+                    new MemoryStream(body).CopyTo(requestStream);
                 }
                 response = (HttpWebResponse)_mOkHttpClient.GetResponse();
             }
@@ -452,12 +448,12 @@ namespace pili_sdk_csharp.pili
                 throw new PiliException(MessageConfig.NullStreamIdExceptionMsg);
             }
 
-            if (!Utils.IsArgNotEmpty(fileName))
+            if (!string.IsNullOrWhiteSpace(fileName))
             {
                 throw new PiliException(MessageConfig.IllegalFileNameExceptionMsg);
             }
 
-            if (!Utils.IsArgNotEmpty(format))
+            if (!string.IsNullOrWhiteSpace(format))
             {
                 throw new PiliException(MessageConfig.IllegalFormatExceptionMsg);
             }
@@ -473,7 +469,7 @@ namespace pili_sdk_csharp.pili
             {
                 json.Add("time", time);
             }
-            if (Utils.IsArgNotEmpty(notifyUrl))
+            if (string.IsNullOrWhiteSpace(notifyUrl))
             {
                 json.Add("notifyUrl", notifyUrl); // optional
             }
@@ -483,7 +479,7 @@ namespace pili_sdk_csharp.pili
                 var url = new Uri(urlStr);
                 _mOkHttpClient = (HttpWebRequest)WebRequest.Create(url);
                 var contentType = "application/json";
-                var body = json.ToString().GetBytes(Config.Utf8);
+                var body = Encoding.UTF8.GetBytes(json.ToString());
                 var macToken = credentials.SignRequest(url, "POST", body, contentType);
                 _mOkHttpClient.Method = WebRequestMethods.Http.Post;
                 _mOkHttpClient.ContentType = contentType;
@@ -492,7 +488,7 @@ namespace pili_sdk_csharp.pili
                 _mOkHttpClient.ContentLength = body.Length;
                 using (var requestStream = _mOkHttpClient.GetRequestStream())
                 {
-                    Utils.CopyN(requestStream, new MemoryStream(body), body.Length);
+                    new MemoryStream(body).CopyTo(requestStream);
                 }
                 response = (HttpWebResponse)_mOkHttpClient.GetResponse();
             }
@@ -682,7 +678,7 @@ namespace pili_sdk_csharp.pili
         {
             if (nonce <= 0)
             {
-                nonce = DateTimeHelperClass.CurrentUnixTimeMillis() / 1000; // the unit should be second
+                nonce = DateTimeHelper.CurrentUnixTimeMillis() / 1000; // the unit should be second
             }
 
             var baseUri = "/" + stream.HubName + "/" + stream.Title + "?nonce=" + nonce;

@@ -19,7 +19,7 @@ namespace pili_sdk_csharp.pili
         {
             set
             {
-                if (!Utils.IsArgNotEmpty(value))
+                if (!string.IsNullOrWhiteSpace(value))
                 {
                     throw new ArgumentException("Illegal API Host:" + value);
                 }
@@ -31,7 +31,7 @@ namespace pili_sdk_csharp.pili
         {
             set
             {
-                if (!Utils.IsArgNotEmpty(value))
+                if (!string.IsNullOrWhiteSpace(value))
                 {
                     throw new ArgumentException("Illegal API Version:" + value);
                 }
