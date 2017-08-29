@@ -2,10 +2,11 @@
 using System.Diagnostics;
 using pili_sdk_csharp.pili;
 using pili_sdk_csharp.pili_qiniu;
+using Xunit;
 
 namespace pili_sdk_csharp
 {
-    internal class Example
+    public class Example
     {
         // Replace with your keys here
         private const string AccessKey = "";
@@ -23,15 +24,10 @@ namespace pili_sdk_csharp
         // static {
         //     Configuration.getInstance().setAPIHost("pili.qiniuapi.com"); // default
         // }
-        private static void Main(string[] args)
-        {
-            TestCreatStream();
-            //测试推流后才能执行操作的函数，需要填写生成的流的id。
-            // testTuiStream("z1.liuhanlin.561f62c5fb16df53010003ed");
-            Console.ReadKey();
-        }
 
-        public static void TestStream(string streamid)
+        [Theory]
+        [InlineData("")]
+        public static void TestStream(string streamId)
         {
             Stream stream = null;
             var credentials = new Credentials(AccessKey, SecretKey); // Credentials Object
@@ -39,7 +35,7 @@ namespace pili_sdk_csharp
             //get a stream
             try
             {
-                stream = hub.GetStream(streamid);
+                stream = hub.GetStream(streamId);
                 Console.WriteLine("hub.getStream:");
                 Console.WriteLine(stream.ToJsonString());
                 /*
@@ -80,11 +76,13 @@ namespace pili_sdk_csharp
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+            Assert.NotEqual(stream, null);
+
             //// Get Stream segments
             try
             {
-                long start = 0; // optional, in second, unix timestamp
-                long end = 0; // optional, in second, unix timestamp
+                const int start = 0; // optional, in second, unix timestamp
+                const int end = 0; // optional, in second, unix timestamp
                 var limit = 0; // optional, int
                 var segmentList = stream.Segments(start, end, limit);
 
@@ -176,7 +174,7 @@ namespace pili_sdk_csharp
             //get a stream
             try
             {
-                stream = hub.GetStream(streamid);
+                stream = hub.GetStream(streamId);
                 Console.WriteLine("hub.getStream:");
                 Console.WriteLine(stream.ToJsonString());
                 /*
@@ -219,6 +217,7 @@ namespace pili_sdk_csharp
             }
         }
 
+        [Fact]
         public static void TestCreatStream()
         {
             //////////////////////////////////////////////////////////////////////////////////////////
@@ -271,7 +270,7 @@ namespace pili_sdk_csharp
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-
+            Assert.NotEqual(stream, null);
             try
             {
                 stream = hub.GetStream(stream.StreamId);
@@ -312,7 +311,7 @@ namespace pili_sdk_csharp
             try
             {
                 string marker = null; // optional
-                long limit = 0; // optional
+                var limit = 0; // optional
                 string titlePrefix = null; // optional
 
                 var streamList = hub.ListStreams(marker, limit, titlePrefix);
@@ -456,7 +455,7 @@ namespace pili_sdk_csharp
                 /*
                 {
                     "addr":"222.73.202.226:2572",
-                    "CurrentStatus":"disconnected",
+                    "status":"disconnected",
                     "bytesPerSecond":0,
                     "framesPerSecond":{
                         "audio":0,
@@ -534,7 +533,7 @@ namespace pili_sdk_csharp
                 /*
                 {
                     "addr":"222.73.202.226:2572",
-                    "CurrentStatus":"disconnected",
+                    "status":"disconnected",
                     "bytesPerSecond":0,
                     "framesPerSecond":{
                         "audio":0,
