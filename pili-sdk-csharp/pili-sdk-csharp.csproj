@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <Version>2.0.0-alpha</Version>
+    <Version>2.0.0-alpha3</Version>
     <Description>An unofficial pili sdk which forks official pili-sdk-csharp.
 It added support for .NET Standard 2.0 and optimize naming style.</Description>
     <Authors>PM Extra</Authors>

@@ -124,7 +124,7 @@ namespace pili_sdk_csharp.pili
         }
 
 
-        public virtual Status CurrentStatus()
+        public virtual StreamStatus Status()
         {
             return API.GetStreamStatus(_mCredentials, _id);
         }
@@ -318,12 +318,12 @@ namespace pili_sdk_csharp.pili
             }
         }
 
-        public class Status
+        public class StreamStatus
         {
             private readonly string _mJsonString;
             private readonly string _status;
 
-            public Status(JObject jsonObj)
+            public StreamStatus(JObject jsonObj)
             {
                 Addr = jsonObj["addr"].ToString();
                 _status = jsonObj["status"].ToString();

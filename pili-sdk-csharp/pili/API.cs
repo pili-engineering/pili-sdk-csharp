@@ -218,8 +218,8 @@ namespace pili_sdk_csharp.pili
             throw new PiliException(response);
         }
 
-        // get stream CurrentStatus      
-        public static Stream.Status GetStreamStatus(Credentials credentials, string streamId)
+        // get stream status      
+        public static Stream.StreamStatus GetStreamStatus(Credentials credentials, string streamId)
         {
             if (streamId == null)
             {
@@ -256,7 +256,7 @@ namespace pili_sdk_csharp.pili
                     var reader = new StreamReader(response.GetResponseStream());
                     var text = reader.ReadToEnd();
                     var jsonObj = JObject.Parse(text);
-                    return new Stream.Status(jsonObj);
+                    return new Stream.StreamStatus(jsonObj);
                 }
                 catch (IOException e)
                 {

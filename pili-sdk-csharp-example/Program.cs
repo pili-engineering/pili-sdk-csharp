@@ -447,16 +447,16 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-            // Get Stream CurrentStatus
+            // Get Stream Status
             try
             {
-                var status = stream.CurrentStatus();
-                Console.WriteLine("Stream CurrentStatus()");
+                var status = stream.Status();
+                Console.WriteLine("Stream Status()");
                 Console.WriteLine(status.ToString());
                 /*
                 {
                     "addr":"222.73.202.226:2572",
-                    "CurrentStatus":"disconnected",
+                    "status":"disconnected",
                     "bytesPerSecond":0,
                     "framesPerSecond":{
                         "audio":0,
@@ -525,16 +525,16 @@ namespace pili_sdk_csharp_example
             }
 
 
-            // Get Stream CurrentStatus
+            // Get Stream Status
             try
             {
-                var status = stream.CurrentStatus();
-                Console.WriteLine("Stream CurrentStatus()");
+                var status = stream.Status();
+                Console.WriteLine("Stream Status()");
                 Console.WriteLine(status.ToString());
                 /*
                 {
                     "addr":"222.73.202.226:2572",
-                    "CurrentStatus":"disconnected",
+                    "status":"disconnected",
                     "bytesPerSecond":0,
                     "framesPerSecond":{
                         "audio":0,

@@ -446,11 +446,11 @@ namespace pili_sdk_csharp
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-            // Get Stream CurrentStatus
+            // Get Stream Status
             try
             {
-                var status = stream.CurrentStatus();
-                Console.WriteLine("Stream CurrentStatus()");
+                var status = stream.Status();
+                Console.WriteLine("Stream Status()");
                 Console.WriteLine(status.ToString());
                 /*
                 {
@@ -524,11 +524,11 @@ namespace pili_sdk_csharp
             }
 
 
-            // Get Stream CurrentStatus
+            // Get Stream Status
             try
             {
-                var status = stream.CurrentStatus();
-                Console.WriteLine("Stream CurrentStatus()");
+                var status = stream.Status();
+                Console.WriteLine("Stream Status()");
                 Console.WriteLine(status.ToString());
                 /*
                 {
