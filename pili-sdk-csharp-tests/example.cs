@@ -370,47 +370,47 @@ namespace pili_sdk_csharp
                  }
              */
 
-            // Update a Stream
-            var newPublishKey = "new_secret_words"; // optional
-            var newPublishSecurity = "static"; // optional, can be "dynamic" or "static"
-            var newDisabled = true; // optional, can be "true" of "false"
-            try
-            {
-                var newStream = stream.Update(newPublishKey, newPublishSecurity, newDisabled);
-                Console.WriteLine("Stream update()");
-                Console.WriteLine(newStream.ToJsonString());
-                stream = newStream;
-                /*
-                {
-                    "id":"z1.test-hub.55d80075e3ba5723280000d2",
-                    "createdAt":"2015-08-22T04:54:13.539Z",
-                    "updatedAt":"2015-08-22T01:53:02.738973745-04:00",
-                    "title":"55d80075e3ba5723280000d2",
-                    "hub":"test-hub",
-                    "disabled":true,
-                    "publishKey":"new_secret_words",
-                    "publishSecurity":"static",
-                    "hosts":{
-                        "publish":{
-                            "rtmp":"ey636h.publish.z1.pili.qiniup.com"
-                         },
-                         "live":{
-                             "http":"ey636h.live1-http.z1.pili.qiniucdn.com",
-                             "rtmp":"ey636h.live1-rtmp.z1.pili.qiniucdn.com"
-                         },
-                         "playback":{
-                             "http":"ey636h.hls.z1.pili.qiniucdn.com"
-                         }
-                     }
-                 }
-             */
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
+            //// Update a Stream
+            //var newPublishKey = "new_secret_words"; // optional
+            //var newPublishSecurity = "static"; // optional, can be "dynamic" or "static"
+            //var newDisabled = true; // optional, can be "true" of "false"
+            //try
+            //{
+            //    var newStream = stream.Update(newPublishKey, newPublishSecurity, newDisabled);
+            //    Console.WriteLine("Stream update()");
+            //    Console.WriteLine(newStream.ToJsonString());
+            //    stream = newStream;
+            //    /*
+            //    {
+            //        "id":"z1.test-hub.55d80075e3ba5723280000d2",
+            //        "createdAt":"2015-08-22T04:54:13.539Z",
+            //        "updatedAt":"2015-08-22T01:53:02.738973745-04:00",
+            //        "title":"55d80075e3ba5723280000d2",
+            //        "hub":"test-hub",
+            //        "disabled":true,
+            //        "publishKey":"new_secret_words",
+            //        "publishSecurity":"static",
+            //        "hosts":{
+            //            "publish":{
+            //                "rtmp":"ey636h.publish.z1.pili.qiniup.com"
+            //             },
+            //             "live":{
+            //                 "http":"ey636h.live1-http.z1.pili.qiniucdn.com",
+            //                 "rtmp":"ey636h.live1-rtmp.z1.pili.qiniucdn.com"
+            //             },
+            //             "playback":{
+            //                 "http":"ey636h.hls.z1.pili.qiniucdn.com"
+            //             }
+            //         }
+            //     }
+            // */
+            //}
+            //catch (PiliException e)
+            //{
+            //    // TODO Auto-generated catch block
+            //    Console.WriteLine(e.ToString());
+            //    Console.Write(e.StackTrace);
+            //}
 
             // Disable a Stream
             try
@@ -486,6 +486,7 @@ namespace pili_sdk_csharp
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+
             // Generate RTMP live play URLs
             var originUrl = stream.RtmpLiveUrls()[Stream.Origin];
             Console.WriteLine("Stream rtmpLiveUrls()");

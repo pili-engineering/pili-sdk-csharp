@@ -19,6 +19,7 @@ namespace pili_sdk_csharp.pili
         {
             //  System.out.println("Stream:" + jsonObj.toString());
             _id = jsonObj["id"].ToString();
+            Name = _id.Split('.')[_id.Split('.').Length - 1];
             HubName = jsonObj["hub"].ToString();
             CreatedAt = jsonObj["createdAt"].ToString();
             UpdatedAt = jsonObj["updatedAt"].ToString();
@@ -74,6 +75,7 @@ namespace pili_sdk_csharp.pili
 
         public string LiveHttpHost { get; }
 
+        public string Name { get; }
 
         public string LiveHlsHost { get; }
 
@@ -129,10 +131,9 @@ namespace pili_sdk_csharp.pili
             return API.GetStreamStatus(_mCredentials, _id);
         }
 
-
-        public virtual string RtmpPublishUrl()
+        public virtual string RtmpPublishUrl(long expireAfterSeconds = 86400)
         {
-            return API.PublishUrl(this, 0);
+            return API.PublishUrl(this, _mCredentials, expireAfterSeconds);
         }
 
         public virtual IDictionary<string, string> RtmpLiveUrls()

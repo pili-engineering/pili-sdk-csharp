@@ -9,15 +9,16 @@ namespace pili_sdk_csharp.pili_qiniu
     {
         private const string DigestAuthPrefix = "Qiniu";
         private readonly string _accessKey;
+        private readonly string _secretKey;
         private readonly HMACSHA1 _skSpec;
 
         public Credentials(string ak, string sk)
         {
             _accessKey = ak ?? throw new ArgumentNullException(nameof(ak), "Invalid accessKey!");
-            var mSecretKey = sk ?? throw new ArgumentNullException(nameof(sk), "Invalid secretKey!!");
+            _secretKey = sk ?? throw new ArgumentNullException(nameof(sk), "Invalid secretKey!!");
             try
             {
-                _skSpec = new HMACSHA1(Encoding.UTF8.GetBytes(mSecretKey));
+                _skSpec = new HMACSHA1(Encoding.UTF8.GetBytes(_secretKey));
             }
             catch (Exception e)
             {
@@ -25,6 +26,13 @@ namespace pili_sdk_csharp.pili_qiniu
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+        }
+
+        public virtual string GetToken(string hubName, string streamKey, long expire)
+        {
+            var path = $"/{hubName}/{streamKey}?e={expire}";
+            return $"{_accessKey}:{Convert.ToBase64String(new HMACSHA1(Encoding.UTF8.GetBytes(_secretKey)).ComputeHash(Encoding.UTF8.GetBytes(path)))}".Replace('+', '-')
+                .Replace('/', '_');
         }
 
         public virtual string SignRequest(Uri url, string method, byte[] body, string contentType)

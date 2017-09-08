@@ -615,19 +615,12 @@ namespace pili_sdk_csharp.pili
         }
 
         //Generate a RTMP publish URL
-        public static string PublishUrl(Stream stream, long nonce)
+        public static string PublishUrl(Stream stream, Credentials credentials, long expireAfterSeconds)
         {
+            var expire = DateTimeHelper.CurrentUnixTimeSeconds() + expireAfterSeconds;
+            var token = credentials.GetToken(stream.HubName, stream.Name, expire);
             const string defaultScheme = "rtmp";
-            if ("dynamic".Equals(stream.PublishSecurity))
-            {
-                return GenerateDynamicUrl(stream, nonce, defaultScheme);
-            }
-            if ("static".Equals(stream.PublishSecurity))
-            {
-                return GenerateStaticUrl(stream, defaultScheme);
-            }
-            // "dynamic" as default 
-            return GenerateDynamicUrl(stream, nonce, defaultScheme);
+            return $"{defaultScheme}://{stream.PublishRtmpHost}/{stream.HubName}/{stream.Title}?e={expire}&token={token}";
         }
 
         //Generate RTMP live play URL
