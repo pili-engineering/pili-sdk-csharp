@@ -131,7 +131,7 @@ namespace pili_sdk_csharp.pili
             return API.GetStreamStatus(_mCredentials, _id);
         }
 
-        public virtual string RtmpPublishUrl(long expireAfterSeconds = 86400)
+        public virtual string RtmpPublishUrl(long expireAfterSeconds)
         {
             return API.PublishUrl(this, _mCredentials, expireAfterSeconds);
         }

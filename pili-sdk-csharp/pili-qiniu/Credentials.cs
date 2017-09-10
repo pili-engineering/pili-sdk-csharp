@@ -28,11 +28,10 @@ namespace pili_sdk_csharp.pili_qiniu
             }
         }
 
-        public virtual string GetToken(string hubName, string streamKey, long expire)
+        public virtual string SignStream(string hubName, string streamKey, long expire)
         {
             var path = $"/{hubName}/{streamKey}?e={expire}";
-            return $"{_accessKey}:{Convert.ToBase64String(new HMACSHA1(Encoding.UTF8.GetBytes(_secretKey)).ComputeHash(Encoding.UTF8.GetBytes(path)))}".Replace('+', '-')
-                .Replace('/', '_');
+            return $"{_accessKey}:{SignData(path)}";
         }
 
         public virtual string SignRequest(Uri url, string method, byte[] body, string contentType)

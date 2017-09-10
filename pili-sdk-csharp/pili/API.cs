@@ -615,10 +615,10 @@ namespace pili_sdk_csharp.pili
         }
 
         //Generate a RTMP publish URL
-        public static string PublishUrl(Stream stream, Credentials credentials, long expireAfterSeconds)
+        public static string RtmpPublishUrl(Stream stream, Credentials credentials, long expireAfterSeconds)
         {
             var expire = DateTimeHelper.CurrentUnixTimeSeconds() + expireAfterSeconds;
-            var token = credentials.GetToken(stream.HubName, stream.Name, expire);
+            var token = credentials.SignStream(stream.HubName, stream.Name, expire);
             const string defaultScheme = "rtmp";
             return $"{defaultScheme}://{stream.PublishRtmpHost}/{stream.HubName}/{stream.Title}?e={expire}&token={token}";
         }
@@ -701,33 +701,6 @@ namespace pili_sdk_csharp.pili
                 }
             }
             return dictionary;
-        }
-
-        private static string GenerateStaticUrl(Stream stream, string scheme)
-        {
-            return $"{scheme}://{stream.PublishRtmpHost}/{stream.HubName}/{stream.Title}?key={stream.PublishKey}";
-        }
-
-        private static string GenerateDynamicUrl(Stream stream, long nonce, string scheme)
-        {
-            if (nonce <= 0)
-            {
-                nonce = DateTimeHelper.CurrentUnixTimeSeconds();
-            }
-
-            var baseUri = "/" + stream.HubName + "/" + stream.Title + "?nonce=" + nonce;
-            string publishToken;
-            try
-            {
-                publishToken = Credentials.Sign(stream.PublishKey, baseUri);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-                throw new PiliException(e);
-            }
-            return $"{scheme}://{stream.PublishRtmpHost}{baseUri}&token={publishToken}";
         }
     }
 }
