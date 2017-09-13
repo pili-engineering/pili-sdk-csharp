@@ -26,6 +26,12 @@ namespace pili_sdk_csharp.pili_common
                 .TrimEnd('=');
         }
 
+        public static string Base64UrlEncode(byte[] data)
+        {
+            return Convert.ToBase64String(data)
+                .Replace('+', '-').Replace('/', '_');
+        }
+
         public static byte[] Decode(string base64)
         {
             base64 = base64

@@ -9,16 +9,15 @@ namespace pili_sdk_csharp.pili_qiniu
     {
         private const string DigestAuthPrefix = "Qiniu";
         private readonly string _accessKey;
-        private readonly string _secretKey;
         private readonly HMACSHA1 _skSpec;
 
         public Credentials(string ak, string sk)
         {
             _accessKey = ak ?? throw new ArgumentNullException(nameof(ak), "Invalid accessKey!");
-            _secretKey = sk ?? throw new ArgumentNullException(nameof(sk), "Invalid secretKey!!");
+            var secretKey = sk ?? throw new ArgumentNullException(nameof(sk), "Invalid secretKey!!");
             try
             {
-                _skSpec = new HMACSHA1(Encoding.UTF8.GetBytes(_secretKey));
+                _skSpec = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
             }
             catch (Exception e)
             {
@@ -68,40 +67,14 @@ namespace pili_sdk_csharp.pili_qiniu
             return $"{DigestAuthPrefix} {_accessKey}:{SignData(sb.ToString())}";
         }
 
-        private static byte[] Digest(string secret, string data)
-        {
-            try
-            {
-                var encoding = Encoding.UTF8;
-                var newdata = encoding.GetBytes(data);
-                var bytesSk = encoding.GetBytes(secret);
-                var mac = new HMACSHA1(bytesSk);
-                var digest = mac.ComputeHash(newdata);
-
-                return digest;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-                throw new Exception("Failed to digest: " + e.Message);
-            }
-        }
-
-        public static string Sign(string secret, string data)
-        {
-            return UrlSafeBase64.EncodeToString(Digest(secret, data));
-        }
-
         private string SignData(string data)
         {
             string sign;
             try
             {
-                var encoding = Encoding.UTF8;
-                var newdata = encoding.GetBytes(data);
+                var newdata = Encoding.UTF8.GetBytes(data);
                 var digest = _skSpec.ComputeHash(newdata);
-                sign = UrlSafeBase64.EncodeToString(digest);
+                sign = UrlSafeBase64.Base64UrlEncode(digest);
             }
             catch (Exception e)
             {

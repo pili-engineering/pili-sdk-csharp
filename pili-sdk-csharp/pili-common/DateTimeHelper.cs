@@ -17,4 +17,9 @@ internal static class DateTimeHelper
     {
         return (long)(DateTimeOffset.UtcNow - UnixEpoch).TotalSeconds;
     }
+
+    internal static long TransUnixTimeSeconds(DateTime dateTime)
+    {
+        return (long)(dateTime - UnixEpoch).TotalSeconds;
+    }
 }

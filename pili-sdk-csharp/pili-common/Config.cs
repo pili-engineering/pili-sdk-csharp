@@ -10,7 +10,7 @@ namespace pili_sdk_csharp.pili_common
 
         public const string Utf8 = "UTF-8";
 
-        public const string DefaultAPIVersion = "v1";
+        public const string DefaultAPIVersion = "v2";
 
         [Obsolete]
         public const string APIVersion = DefaultAPIVersion;

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using pili_sdk_csharp.pili_common;
 using pili_sdk_csharp.pili_qiniu;
 
 namespace pili_sdk_csharp.pili
@@ -9,281 +12,140 @@ namespace pili_sdk_csharp.pili
     public class Stream
     {
         public const string Origin = "ORIGIN";
-        private readonly string _id;
         private readonly Credentials _mCredentials;
-        private readonly string _mStreamJsonStr;
-        private readonly string[] _profiles;
+        private readonly string _hubName;
+        private readonly string _key;
+        private readonly string _ekey;
 
-
-        public Stream(JObject jsonObj)
+        public Stream(string hubName, string key, Credentials credentials)
         {
-            //  System.out.println("Stream:" + jsonObj.toString());
-            _id = jsonObj["id"].ToString();
-            Name = _id.Split('.')[_id.Split('.').Length - 1];
-            HubName = jsonObj["hub"].ToString();
-            CreatedAt = jsonObj["createdAt"].ToString();
-            UpdatedAt = jsonObj["updatedAt"].ToString();
-            Title = jsonObj["title"].ToString();
-            PublishKey = jsonObj["publishKey"].ToString();
-            PublishSecurity = jsonObj["publishSecurity"].ToString();
-            Disabled = (bool)jsonObj["disabled"];
-
-            if (jsonObj["profiles"] != null)
-            {
-                Console.WriteLine("profiles--------" + jsonObj["profiles"]);
-                _profiles = JsonConvert.DeserializeAnonymousType(jsonObj["profiles"].ToString(), _profiles);
-            }
-
-            if (jsonObj["hosts"]["publish"] != null)
-            {
-                PublishRtmpHost = jsonObj["hosts"]["publish"]["rtmp"].ToString();
-            }
-            if (jsonObj["hosts"]["live"] != null)
-            {
-                LiveRtmpHost = jsonObj["hosts"]["live"]["rtmp"].ToString();
-                LiveHdlHost = jsonObj["hosts"]["live"]["hdl"].ToString();
-                LiveHlsHost = jsonObj["hosts"]["live"]["hls"].ToString();
-                LiveHttpHost = jsonObj["hosts"]["live"]["hls"].ToString();
-            }
-            if (jsonObj["hosts"]["playback"] != null)
-            {
-                PlaybackHttpHost = jsonObj["hosts"]["playback"]["hls"].ToString();
-            }
-            if (jsonObj["hosts"]["play"] != null)
-            {
-                PlayHttpHost = jsonObj["hosts"]["play"]["http"].ToString();
-                PlayRtmpHost = jsonObj["hosts"]["play"]["rtmp"].ToString();
-            }
-
-            _mStreamJsonStr = jsonObj.ToString();
-        }
-
-
-        public Stream(JObject jsonObject, Credentials credentials)
-            : this(jsonObject)
-        {
+            _hubName = hubName;
+            _key = key;
+            _ekey = UrlSafeBase64.Base64UrlEncode(Encoding.UTF8.GetBytes(key));
             _mCredentials = credentials;
         }
 
-        public string PlaybackHttpHost { get; }
-
-        public string PlayRtmpHost { get; }
-
-        public string LiveHdlHost { get; }
-
-        public string PlayHttpHost { get; }
-
-        public string LiveHttpHost { get; }
-
-        public string Name { get; }
-
-        public string LiveHlsHost { get; }
-
-        public virtual string[] Profiles => _profiles;
-
-        public virtual string PublishRtmpHost { get; }
-
-        public virtual string LiveRtmpHost { get; }
-
-        public virtual string StreamId => _id;
-
-        public virtual string HubName { get; }
-
-        public virtual string CreatedAt { get; }
-
-        public virtual string UpdatedAt { get; }
-
-        public virtual string Title { get; }
-
-        public virtual string PublishKey { get; }
-
-        public virtual string PublishSecurity { get; }
-
-        public virtual bool Disabled { get; }
-
-
-        public virtual Stream Update(string publishKey, string publishSecrity, bool disabled)
+        public StreamInfo Info()
         {
-            return API.UpdateStream(_mCredentials, _id, publishKey, publishSecrity, disabled);
+            var info = API.GetStream(_mCredentials, _hubName, _ekey);
+            return new StreamInfo(_hubName, _key, info);
         }
 
-
-        public virtual SegmentList Segments()
+        public void Disable()
         {
-            return API.GetStreamSegments(_mCredentials, _id, 0, 0, 0);
+            SetDisableTill(-1);
         }
 
-
-        public virtual SegmentList Segments(long start, long end)
+        public void Enable()
         {
-            return API.GetStreamSegments(_mCredentials, _id, start, end, 0);
+            SetDisableTill(0);
         }
 
-
-        public virtual SegmentList Segments(long start, long end, int limit)
+        public void DisableTill(long till)
         {
-            return API.GetStreamSegments(_mCredentials, _id, start, end, limit);
+            SetDisableTill(till);
         }
 
-
-        public virtual StreamStatus Status()
+        public void SetDisableTill(long till)
         {
-            return API.GetStreamStatus(_mCredentials, _id);
+            API.SetDisableTill(_mCredentials, _hubName, _ekey, till);
         }
 
-        public virtual string RtmpPublishUrl(long expireAfterSeconds)
+        public StreamStatus LiveStatus()
         {
-            return API.PublishUrl(this, _mCredentials, expireAfterSeconds);
+            return new StreamStatus(API.LiveStatus(_mCredentials, _hubName, _ekey));
         }
 
-        public virtual IDictionary<string, string> RtmpLiveUrls()
+        public SaveasResponse Save(long start, long end)
         {
-            return API.RtmpLiveUrl(this);
+            var options = new SaveasOptions(start, end);
+            return new SaveasResponse(API.SaveAs(_mCredentials, _hubName, _ekey, options));
         }
 
-        public virtual IDictionary<string, string> HlsLiveUrls()
+        public SaveasResponse SaveAs(SaveasOptions options)
         {
-            return API.HlsLiveUrl(this);
+            return new SaveasResponse(API.SaveAs(_mCredentials, _hubName, _ekey, options));
         }
 
-        public virtual IDictionary<string, string> HlsPlaybackUrls(long start, long end)
+        public string Snapshot(SnapshotOptions options)
         {
-            return API.HlsPlaybackUrl(_mCredentials, _id, start, end);
+            return API.Snapshot(_mCredentials, _hubName, _ekey, options)["fname"].ToString();
         }
 
-        public virtual IDictionary<string, string> HttpFlvLiveUrls()
+        public void UpdateConverts(List<string> profiles)
         {
-            return API.HttpFlvLiveUrl(this);
+            API.UpdateConverts(_mCredentials, _hubName, _ekey, profiles);
         }
 
-
-        public virtual string Delete()
+        public List<Record> HistoryActivity(long start, long end)
         {
-            return API.DeleteStream(_mCredentials, _id);
+            return API.HistoryActivity(_mCredentials, _hubName, _ekey, start, end)["items"].ToObject<List<Record>>();
         }
 
-        public virtual string ToJsonString()
+        public void Delete()
         {
-            return _mStreamJsonStr;
+            API.DeleteStream(_mCredentials, _hubName, _key);
         }
 
-
-        public virtual SaveAsResponse SaveAs(string fileName, string format, long startTime, long endTime, string notifyUrl, string pipleline)
+        public string RTMPPublishURL(string domain, long expireAfterSeconds)
         {
-            return API.SaveAs(_mCredentials, _id, fileName, format, startTime, endTime, notifyUrl, pipleline);
+            var expire = DateTimeHelper.CurrentUnixTimeSeconds() + expireAfterSeconds;
+            var token = _mCredentials.SignStream(_hubName, _key, expire);
+            const string defaultScheme = "rtmp";
+            return $"{defaultScheme}://{domain}/{_hubName}/{_key}?e={expire}&token={token}";
         }
 
-        public virtual SaveAsResponse SaveAs(string fileName, string format, long startTime, long endTime)
+        public string RTMPPlayURL(string domain)
         {
-            return SaveAs(fileName, format, startTime, endTime, null, null);
+            return $"rtmp://{domain}/{_hubName}/{_key}";
         }
 
-        public virtual SaveAsResponse SaveAs(string fileName, string format, string notifyUrl, string pipleline)
+        public string HLSPlayURL(string domain)
         {
-            return SaveAs(fileName, format, 0, 0, notifyUrl, pipleline);
+            return $"http://{domain}/{_hubName}/{_key}.m3u8";
         }
 
-        public virtual SaveAsResponse SaveAs(string fileName, string format)
+        public string HDLPlayURL(string domain)
         {
-            return SaveAs(fileName, format, 0, 0, null, null);
+            return $"http://{domain}/{_hubName}/{_key}.flv";
         }
 
-        public virtual SnapshotResponse Snapshot(string name, string format)
+        public string SnapshotPlayURL(string domain)
         {
-            return API.Snapshot(_mCredentials, _id, name, format, 0, null);
+            return $"http://{domain}/{_hubName}/{_key}.jpg";
         }
 
-        public virtual SnapshotResponse Snapshot(string name, string format, string notifyUrl)
+        public sealed class StreamInfo
         {
-            return API.Snapshot(_mCredentials, _id, name, format, 0, notifyUrl);
-        }
-
-        public virtual SnapshotResponse Snapshot(string name, string format, long time, string notifyUrl)
-        {
-            return API.Snapshot(_mCredentials, _id, name, format, time, notifyUrl);
-        }
-
-
-        public virtual Stream Enable()
-        {
-            return API.UpdateStream(_mCredentials, _id, null, null, false);
-        }
-
-        public virtual Stream Disable()
-        {
-            return API.UpdateStream(_mCredentials, _id, null, null, true);
-        }
-
-        public class Segment
-        {
-            public Segment(long start, long end)
+            public StreamInfo(string hubName, string key, JObject info)
             {
-                Start = start;
-                End = end;
+                HubName = hubName;
+                Key = key;
+                Converts = JsonConvert.DeserializeObject<List<string>>(info["converts"].ToString());
+                CreatedAt = Convert.ToInt64(info["createdAt"].ToString());
+                ExpireAt = Convert.ToInt64(info["expireAt"].ToString());
+                UpdatedAt = Convert.ToInt64(info["updatedAt"].ToString());
+                DisabledTill = Convert.ToInt64(info["disabledTill"].ToString());
+                WaterMark = (bool)info["watermark"];
+            }
+            public bool Disabled()
+            {
+                return DisabledTill == -1 || DisabledTill > DateTimeHelper.CurrentUnixTimeSeconds();
             }
 
-            public virtual long Start { get; }
-
-            public virtual long End { get; }
+            public string HubName { get; }
+            public string Key { get; }
+            public List<string> Converts { get; set; }
+            public long CreatedAt { get; }
+            public long ExpireAt { get; set; }
+            public long UpdatedAt { get; }
+            public long DisabledTill { get; set; }
+            public bool WaterMark { get; set; }
         }
 
-
-        public class SaveAsResponse
+        public class FPSStatus
         {
-            private readonly string _mJsonString;
-
-            public SaveAsResponse(JObject jsonObj)
-            {
-                Url = jsonObj["url"].ToString();
-                try
-                {
-                    TargetUrl = jsonObj["targetUrl"].ToString();
-                    //
-                }
-                catch (NullReferenceException)
-                {
-                    // do nothing. ignore.
-                }
-                PersistentId = jsonObj["persistentId"].ToString();
-                _mJsonString = jsonObj.ToString();
-            }
-
-            public virtual string Url { get; }
-
-            public virtual string TargetUrl { get; }
-
-            public virtual string PersistentId { get; }
-
-            public override string ToString()
-            {
-                return _mJsonString;
-            }
-        }
-
-        public class SnapshotResponse
-        {
-            private readonly string _mJsonString;
-
-            public SnapshotResponse(JObject jsonObj)
-            {
-                TargetUrl = jsonObj["targetUrl"].ToString();
-                PersistentId = jsonObj.GetValue("persistentId") == null ? null : jsonObj["persistentId"].ToString();
-                _mJsonString = jsonObj.ToString();
-            }
-
-            public virtual string TargetUrl { get; }
-
-            public virtual string PersistentId { get; }
-
-            public override string ToString()
-            {
-                return _mJsonString;
-            }
-        }
-
-        public class FramesPerSecond
-        {
-            public FramesPerSecond(float audio, float video, float data)
+            public FPSStatus(float audio, float video, float data)
             {
                 Audio = audio;
                 Video = video;
@@ -297,28 +159,6 @@ namespace pili_sdk_csharp.pili
             public virtual float Data { get; }
         }
 
-        public class SegmentList
-        {
-            private readonly IList<Segment> _segmentList;
-
-
-            public SegmentList(JObject jsonObj)
-            {
-                _segmentList = new List<Segment>();
-                var jlist = JArray.Parse(jsonObj["segments"].ToString());
-                for (var i = 0; i < jlist.Count; ++i)
-                {
-                    var tempo = JObject.Parse(jlist[i].ToString());
-                    _segmentList.Add(new Segment((long)tempo["start"], (long)tempo["end"]));
-                }
-            }
-
-            public virtual IList<Segment> GetSegmentList()
-            {
-                return _segmentList;
-            }
-        }
-
         public class StreamStatus
         {
             private readonly string _mJsonString;
@@ -326,17 +166,17 @@ namespace pili_sdk_csharp.pili
 
             public StreamStatus(JObject jsonObj)
             {
-                Addr = jsonObj["addr"].ToString();
+                ClientIP = jsonObj["addr"].ToString();
                 _status = jsonObj["status"].ToString();
                 var startFrominit = (DateTime)jsonObj["startFrom"];
-                StartFrom = startFrominit.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                StartAt = DateTimeHelper.TransUnixTimeSeconds(startFrominit);
                 try
                 {
-                    BytesPerSecond = (float)jsonObj["bytesPerSecond"];
+                    Bps = (float)jsonObj["bytesPerSecond"];
                     var audio = (float)jsonObj["framesPerSecond"]["audio"];
                     var video = (float)jsonObj["framesPerSecond"]["video"];
                     var data = (float)jsonObj["framesPerSecond"]["data"];
-                    FramesPerSecond = new FramesPerSecond(audio, video, data);
+                    Fps = new FPSStatus(audio, video, data);
                 }
                 catch (NullReferenceException e)
                 {
@@ -346,13 +186,13 @@ namespace pili_sdk_csharp.pili
                 _mJsonString = jsonObj.ToString();
             }
 
-            public virtual string Addr { get; }
+            public virtual string ClientIP { get; }
 
-            public virtual string StartFrom { get; }
+            public virtual Int64 StartAt { get; }
 
-            public virtual float BytesPerSecond { get; }
+            public virtual float Bps { get; }
 
-            public virtual FramesPerSecond FramesPerSecond { get; }
+            public virtual FPSStatus Fps { get; }
 
             public virtual string GetStatus()
             {
@@ -365,35 +205,53 @@ namespace pili_sdk_csharp.pili
             }
         }
 
-        public class StreamList
+        public sealed class SaveasOptions
         {
-            private readonly IList<Stream> _itemList;
-            private readonly string _marker;
-
-            public StreamList(JObject jsonObj, Credentials auth)
+            public SaveasOptions()
             {
-                _marker = jsonObj["marker"].ToString();
-                Console.WriteLine("this.marker-----" + _marker);
-
-                try
-                {
-                    var record = jsonObj["items"];
-                    _itemList = new List<Stream>();
-                    foreach (var jp in record)
-                    {
-                        _itemList.Add(new Stream(JObject.Parse(jp.ToString()), auth));
-                    }
-                }
-                catch (InvalidCastException e)
-                {
-                    Console.WriteLine(e.ToString());
-                    Console.Write(e.StackTrace);
-                }
             }
 
-            public virtual string Marker => _marker;
+            public SaveasOptions(long start, long end)
+            {
+                Start = start;
+                End = end;
+            }
 
-            public virtual IList<Stream> Streams => _itemList;
+            public string Fname { get; set; }
+            public long Start { get; set; }
+            public long End { get; set; }
+            public string Format { get; set; }
+            public string Pipeline { get; set; }
+            public string Notify { get; set; }
+            // 对应ts文件的过期时间.
+            // -1 表示不修改ts文件的expire属性.
+            // 0  表示修改ts文件生命周期为永久保存.
+            // >0 表示修改ts文件的的生命周期为ExpireDays.
+            public long ExpireDays { get; set; }
+        }
+
+        public sealed class SaveasResponse
+        {
+            public SaveasResponse(JObject jsonObj)
+            {
+                Fname = jsonObj["fname"].ToString();
+                PersistentId = jsonObj["persistentID"].ToString();
+            }
+            public string Fname { get; set; }
+            public string PersistentId { get; set; }
+        }
+
+        public class SnapshotOptions
+        {
+            public virtual string Fname { get; set; }
+            public virtual long Time { get; set; }
+            public virtual string Format { get; set; }
+        }
+
+        public class Record
+        {
+            public virtual long Start { get; set; }
+            public virtual long End { get; set; }
         }
     }
 }

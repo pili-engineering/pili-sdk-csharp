@@ -1,4 +1,6 @@
 ﻿using System;
+using System.CodeDom;
+using System.Collections.Generic;
 using System.Diagnostics;
 using pili_sdk_csharp.pili;
 using pili_sdk_csharp.pili_qiniu;
@@ -7,6 +9,8 @@ namespace pili_sdk_csharp_example
 {
     internal class Example
     {
+        
+
         // Replace with your keys here
         private const string AccessKey = "";
 
@@ -23,56 +27,96 @@ namespace pili_sdk_csharp_example
         // static {
         //     Configuration.getInstance().setAPIHost("pili.qiniuapi.com"); // default
         // }
-        private static void Main(string[] args)
+        private static void Main(List<string> args)
         {
-            TestCreatStream();
-            //测试推流后才能执行操作的函数，需要填写生成的流的id。
-            // testTuiStream("z1.liuhanlin.561f62c5fb16df53010003ed");
+            var credentials = new Credentials(AccessKey, SecretKey);
+            var hub = new Hub(credentials, HubName);
+
+            const string keyA = "SomeTestA";
+            const string keyB = "SomeTestB";
+            Console.WriteLine("获得不存在的流A:");
+            GetStream(hub, keyA);
+
+            Console.WriteLine("创建流:");
+            CreateStream(hub, keyA);
+
+            Console.WriteLine("获得流:");
+            var stream = GetStream(hub, keyA);
+
+            Console.WriteLine("创建重复流:");
+            CreateStream(hub, keyA);
+
+
+            Console.WriteLine("创建另一路流:");
+            CreateStream(hub, keyB);
+
+
+            Console.WriteLine("列出流:");
+            ListStreams(hub, "");
+
+            Console.WriteLine("列出正在直播的流:");
+            ListLiveStreams(hub, "");
+
+            Console.WriteLine("批量查询直播信息:");
+            BatchQueryLiveStreams(hub, new List<string> { keyA, keyB });
+
+            Console.WriteLine("更改流的实时转码规格:");
+            UpdateStreamConverts(stream);
+
+            Console.WriteLine("禁用流:");
+            DisableStream(stream);
+
+            Console.WriteLine("启用流:");
+            EnableStream(stream);
+
+            Console.WriteLine("查询直播状态:");
+            GetLiveStatus(stream);
+
+            Console.WriteLine("查询推流历史:");
+            HistoryActivity(stream);
+
+            Console.WriteLine("保存直播数据:");
+            SavePlayback(stream);
+
+            Console.WriteLine("保存直播截图:");
+            SaveSnapshot(stream);
+
+            Console.WriteLine("RTMP 推流地址:");
+            var url = PiliUrl.RTMPPublishURL(credentials, "pili-publish.mowa-cloud.com", HubName, keyA, 3600);
+            Console.WriteLine(url);
+            url = stream.RTMPPublishURL("pili-publish.mowa-cloud.com", 3600);
+            Console.WriteLine(url);
+
+            Console.WriteLine("RTMP 直播放址:");
+            url = PiliUrl.RTMPPlayURL("pili-live-rtmp.mowa-cloud.com", HubName, keyA);
+            Console.WriteLine(url);
+            url = stream.RTMPPlayURL("pili-live-rtmp.mowa-cloud.com");
+            Console.WriteLine(url);
+
+            Console.WriteLine("HLS 直播地址:");
+            url = PiliUrl.HLSPlayURL("pili-live-hls.mowa-cloud.com", HubName, keyA);
+            Console.WriteLine(url);
+            url = stream.HLSPlayURL("pili-live-hls.mowa-cloud.com");
+            Console.WriteLine(url);
+
+            Console.WriteLine("HDL 直播地址:");
+            url = PiliUrl.HDLPlayURL("pili-live-hdl.mowa-cloud.com", HubName, keyA);
+            Console.WriteLine(url);
+            url = stream.HDLPlayURL("pili-live-hdl.mowa-cloud.com");
+            Console.WriteLine(url);
+
+            Console.WriteLine("截图直播地址:");
+            url = PiliUrl.SnapshotPlayURL("pili-live-snapshot.mowa-cloud.com", HubName, keyA);
+            Console.WriteLine(url);
+            url = stream.SnapshotPlayURL("pili-live-snapshot.mowa-cloud.com");
+            Console.WriteLine(url);
             Console.ReadKey();
         }
-
-        public static void TestStream(string streamid)
+        private static Stream CreateStream(Hub hub, string streamKey)
         {
-            Stream stream = null;
-            var credentials = new Credentials(AccessKey, SecretKey); // Credentials Object
-            var hub = new Hub(credentials, HubName);
-            //get a stream
             try
             {
-                stream = hub.GetStream(streamid);
-                Console.WriteLine("hub.getStream:");
-                Console.WriteLine(stream.ToJsonString());
-                /*
-                 {
-                      "id": "z1.liuhanlin.562f2b35d409d2aa48001102",
-                      "createdAt": "2015-10-27T07:43:49.756Z",
-                      "updatedAt": "2015-10-27T07:43:49.756Z",
-                      "title": "562f2b35d409d2aa48001102",
-                      "hub": "liuhanlin",
-                      "disabled": false,
-                      "publishKey": "9654c11a01b7b941",
-                      "publishSecurity": "static",
-                      "hosts": {
-                        "publish": {
-                          "rtmp": "100000p.publish.z1.pili.qiniup.com"
-                        },
-                        "live": {
-                          "hdl": "100000p.live1-hdl.z1.pili.qiniucdn.com",
-                          "hls": "100000p.live1-hls.z1.pili.qiniucdn.com",
-                          "http": "100000p.live1-hls.z1.pili.qiniucdn.com",
-                          "rtmp": "100000p.live1-rtmp.z1.pili.qiniucdn.com"
-                        },
-                        "playback": {
-                          "hls": "100000p.playback1.z1.pili.qiniucdn.com",
-                          "http": "100000p.playback1.z1.pili.qiniucdn.com"
-                        },
-                        "play": {
-                          "http": "100000p.live1-hls.z1.pili.qiniucdn.com",
-                          "rtmp": "100000p.live1-rtmp.z1.pili.qiniucdn.com"
-                        }
-                      }
-                    }
-                 */
+                return hub.CreateStream(streamKey);
             }
             catch (PiliException e)
             {
@@ -80,136 +124,51 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-            //// Get Stream segments
+            return null;
+        }
+
+        private static Stream GetStream(Hub hub, string streamId)
+        {
             try
             {
-                long start = 0; // optional, in second, unix timestamp
-                long end = 0; // optional, in second, unix timestamp
-                var limit = 0; // optional, int
-                var segmentList = stream.Segments(start, end, limit);
+                return hub.GetStream(streamId);
+            }
+            catch (PiliException e)
+            {
+                // TODO Auto-generated catch block
+                Console.WriteLine(e.ToString());
+                Console.Write(e.StackTrace);
+            }
+            return null;
+        }
 
-                Console.WriteLine("Stream segments()");
-                foreach (var segment in segmentList.GetSegmentList())
+        private Stream.StreamInfo StreamInfo(Stream stream)
+        {
+
+            try
+            {
+                return stream.Info();
+            }
+            catch (PiliException e)
+            {
+                // TODO Auto-generated catch block
+                Console.WriteLine(e.ToString());
+                Console.Write(e.StackTrace);
+            }
+            return null;
+        }
+
+        private static void ListStreams(Hub hub, string prefix)
+        {
+            try
+            {
+                var streamList = hub.List(prefix, 10, "");
+                Console.WriteLine("marker:" + streamList.Marker);
+                var list = streamList.Keys;
+                foreach (var s in list)
                 {
-                    Console.WriteLine("start:" + segment.Start + ",end:" + segment.End);
+                    Console.WriteLine(s);
                 }
-                /*
-                     start:1440315411,end:1440315435
-                 */
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-
-            // Snapshot Stream
-            var format = "jpg"; // required
-            var name = "imageName" + "." + format; // required
-            long time = 1440315411; // optional, in second, unix timestamp
-            string notifyUrl = null; // optional
-
-            try
-            {
-                var response = stream.Snapshot(name, format, time, notifyUrl);
-                Console.WriteLine("Stream snapshot()");
-                Console.WriteLine(response.ToString());
-                /*
-                 {
-                     "targetUrl":"http://ey636h.static1.z0.pili.qiniucdn.com/snapshots/z1.test-hub.55d81a72e3ba5723280000ec/imageName.jpg",
-                     "persistentId":"z1.55d81c247823de5a49ad729c"
-                 }
-                 */
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-
-            // Save Stream as a file
-            var saveAsFormat = "mp4"; // required
-            var saveAsName = "videoName" + "." + saveAsFormat; // required
-            long saveAsStart = 1444897613; // required, in second, unix timestampstart:1444897613,end:1444897973
-            long saveAsEnd = 1444897973; // required, in second, unix timestamp
-            string saveAsNotifyUrl = null; // optional
-            string pipleline = null;
-            try
-            {
-                var response = stream.SaveAs(saveAsName, saveAsFormat, saveAsStart, saveAsEnd, saveAsNotifyUrl, pipleline);
-                Console.WriteLine("Stream saveAs()");
-                Console.WriteLine(response.ToString());
-                /*
-                 {
-                     "url":"http://ey636h.vod1.z1.pili.qiniucdn.com/recordings/z1.test-hub.55d81a72e3ba5723280000ec/videoName.m3u8",
-                     "targetUrl":"http://ey636h.vod1.z1.pili.qiniucdn.com/recordings/z1.test-hub.55d81a72e3ba5723280000ec/videoName.mp4",
-                     "persistentId":"z1.55d81c6c7823de5a49ad77b3"
-                 }
-                */
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-
-            // Delete a Stream
-            try
-            {
-                var res = stream.Delete();
-                Console.WriteLine("Stream delete()");
-                Console.WriteLine(res);
-                // No Content
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-            //////////////////////////////////////////////////////////////////////////////////////////
-            // Stream end
-
-            //get a stream
-            try
-            {
-                stream = hub.GetStream(streamid);
-                Console.WriteLine("hub.getStream:");
-                Console.WriteLine(stream.ToJsonString());
-                /*
-                   {
-                      "id": "z1.liuhanlin.562f2b35d409d2aa48001102",
-                      "createdAt": "2015-10-27T07:43:49.756Z",
-                      "updatedAt": "2015-10-27T07:43:49.756Z",
-                      "title": "562f2b35d409d2aa48001102",
-                      "hub": "liuhanlin",
-                      "disabled": false,
-                      "publishKey": "9654c11a01b7b941",
-                      "publishSecurity": "static",
-                      "hosts": {
-                        "publish": {
-                          "rtmp": "100000p.publish.z1.pili.qiniup.com"
-                        },
-                        "live": {
-                          "hdl": "100000p.live1-hdl.z1.pili.qiniucdn.com",
-                          "hls": "100000p.live1-hls.z1.pili.qiniucdn.com",
-                          "http": "100000p.live1-hls.z1.pili.qiniucdn.com",
-                          "rtmp": "100000p.live1-rtmp.z1.pili.qiniucdn.com"
-                        },
-                        "playback": {
-                          "hls": "100000p.playback1.z1.pili.qiniucdn.com",
-                          "http": "100000p.playback1.z1.pili.qiniucdn.com"
-                        },
-                        "play": {
-                          "http": "100000p.live1-hls.z1.pili.qiniucdn.com",
-                          "rtmp": "100000p.live1-rtmp.z1.pili.qiniucdn.com"
-                        }
-                      }
-                    }
-                 */
             }
             catch (PiliException e)
             {
@@ -219,115 +178,17 @@ namespace pili_sdk_csharp_example
             }
         }
 
-        public static void TestCreatStream()
+        private static void ListLiveStreams(Hub hub, string prefix)
         {
-            //////////////////////////////////////////////////////////////////////////////////////////
-            // Hub begin
-            //////////////////////////////////////////////////////////////////////////////////////////
-
-            // Instantiate an Hub object
-            var credentials = new Credentials(AccessKey, SecretKey); // Credentials Object
-            var hub = new Hub(credentials, HubName);
-            Console.WriteLine(hub.ToString());
-
-            // Create a new Stream
-            string title = null; // optional, auto-generated as default
-            string publishKey = null; // optional, auto-generated as default
-            string publishSecurity = null; // optional, can be "dynamic" or "static", "dynamic" as default
-            Stream stream = null;
             try
             {
-                stream = hub.CreateStream(title, publishKey, publishSecurity);
-                Trace.WriteLine("hub.createStream:");
-                Console.WriteLine(stream.ToJsonString());
-                /*
-                {
-                    "id":"z1.test-hub.55d97350eb6f92638c00000a",
-                    "createdAt":"2015-08-22T04:54:13.539Z",
-                    "updatedAt":"2015-08-22T04:54:13.539Z",
-                    "title":"55d97350eb6f92638c00000a",
-                    "hub":"test-hub",
-                    "disabled":false,
-                    "publishKey":"ca11e07f094c3a6e",
-                    "publishSecurity":"dynamic",
-                    "hosts":{
-                        "publish":{
-                            "rtmp":"ey636h.publish.z1.pili.qiniup.com"
-                         },
-                         "live":{
-                             "http":"ey636h.live1-http.z1.pili.qiniucdn.com",
-                             "rtmp":"ey636h.live1-rtmp.z1.pili.qiniucdn.com"
-                         },
-                         "playback":{
-                             "http":"ey636h.playback1.z1.pili.qiniucdn.com"
-                         }
-                     }
-                 }
-                 */
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-
-            try
-            {
-                stream = hub.GetStream(stream.StreamId);
-                Console.WriteLine("hub.getStream:");
-                Console.WriteLine(stream.ToJsonString());
-                /*
-                {
-                    "id":"z1.test-hub.55d80075e3ba5723280000d2",
-                    "createdAt":"2015-08-22T04:54:13.539Z",
-                    "updatedAt":"2015-08-22T04:54:13.539Z",
-                    "title":"55d80075e3ba5723280000d2",
-                    "hub":"test-hub",
-                    "disabled":false,
-                    "publishKey":"ca11e07f094c3a6e",
-                    "publishSecurity":"dynamic",
-                    "hosts":{
-                        "publish":{
-                            "rtmp":"ey636h.publish.z1.pili.qiniup.com"
-                         },
-                         "live":{
-                             "http":"ey636h.live1-http.z1.pili.qiniucdn.com",
-                             "rtmp":"ey636h.live1-rtmp.z1.pili.qiniucdn.com"
-                         },
-                         "playback":{
-                             "http":"ey636h.playback1.z1.pili.qiniucdn.com"
-                         }
-                     }
-                 }
-                 */
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-            // List streams
-            try
-            {
-                string marker = null; // optional
-                long limit = 0; // optional
-                string titlePrefix = null; // optional
-
-                var streamList = hub.ListStreams(marker, limit, titlePrefix);
-                Console.WriteLine("hub.listStreams()");
+                var streamList = hub.ListLive(prefix, 10, "");
                 Console.WriteLine("marker:" + streamList.Marker);
-                var list = streamList.Streams;
+                var list = streamList.Keys;
                 foreach (var s in list)
                 {
-                    // access the stream
+                    Console.WriteLine(s);
                 }
-
-                /*
-                 marker:10
-                 stream object
-                 */
             }
             catch (PiliException e)
             {
@@ -335,76 +196,13 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-            //////////////////////////////////////////////////////////////////////////////////////////
-            // Hub end
-            //////////////////////////////////////////////////////////////////////////////////////////
+        }
 
-            //////////////////////////////////////////////////////////////////////////////////////////
-            // Stream begin
-            //////////////////////////////////////////////////////////////////////////////////////////
-            var streamJsonString = stream.ToJsonString();
-            Console.WriteLine("Stream toJSONString()");
-            Console.WriteLine(streamJsonString);
-
-            /*
-                {
-                    "id":"z1.test-hub.55d80075e3ba5723280000d2",
-                    "createdAt":"2015-08-22T04:54:13.539Z",
-                    "updatedAt":"2015-08-22T04:54:13.539Z",
-                    "title":"55d80075e3ba5723280000d2",
-                    "hub":"test-hub",
-                    "disabled":false,
-                    "publishKey":"ca11e07f094c3a6e",
-                    "publishSecurity":"dynamic",
-                    "hosts":{
-                        "publish":{
-                            "rtmp":"ey636h.publish.z1.pili.qiniup.com"
-                         },
-                         "live":{
-                             "http":"ey636h.live1-http.z1.pili.qiniucdn.com",
-                             "rtmp":"ey636h.live1-rtmp.z1.pili.qiniucdn.com"
-                         },
-                         "playback":{
-                             "http":"ey636h.playback1.z1.pili.qiniucdn.com"
-                         }
-                     }
-                 }
-             */
-
-            // Update a Stream
-            var newPublishKey = "new_secret_words"; // optional
-            var newPublishSecurity = "static"; // optional, can be "dynamic" or "static"
-            var newDisabled = true; // optional, can be "true" of "false"
+        private static void BatchQueryLiveStreams(Hub hub, List<string> streamkeys)
+        {
             try
             {
-                var newStream = stream.Update(newPublishKey, newPublishSecurity, newDisabled);
-                Console.WriteLine("Stream update()");
-                Console.WriteLine(newStream.ToJsonString());
-                stream = newStream;
-                /*
-                {
-                    "id":"z1.test-hub.55d80075e3ba5723280000d2",
-                    "createdAt":"2015-08-22T04:54:13.539Z",
-                    "updatedAt":"2015-08-22T01:53:02.738973745-04:00",
-                    "title":"55d80075e3ba5723280000d2",
-                    "hub":"test-hub",
-                    "disabled":true,
-                    "publishKey":"new_secret_words",
-                    "publishSecurity":"static",
-                    "hosts":{
-                        "publish":{
-                            "rtmp":"ey636h.publish.z1.pili.qiniup.com"
-                         },
-                         "live":{
-                             "http":"ey636h.live1-http.z1.pili.qiniucdn.com",
-                             "rtmp":"ey636h.live1-rtmp.z1.pili.qiniucdn.com"
-                         },
-                         "playback":{
-                             "http":"ey636h.hls.z1.pili.qiniucdn.com"
-                         }
-                     }
-                 }
-             */
+                var liveStatus = hub.BatchLiveStatus(streamkeys);
             }
             catch (PiliException e)
             {
@@ -412,17 +210,13 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+        }
 
-            // Disable a Stream
+        private static void UpdateStreamConverts(Stream stream)
+        {
             try
             {
-                var disabledStream = stream.Disable();
-                Console.WriteLine("Stream disable()");
-                Console.WriteLine(disabledStream.Disabled);
-                /*
-                 * true
-                 * 
-                 * */
+                stream.UpdateConverts(new List<string> { "480p", "720p" });
             }
             catch (PiliException e)
             {
@@ -430,16 +224,13 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-            // Enable a Stream
+        }
+
+        private static void DisableStream(Stream stream)
+        {
             try
             {
-                var enabledStream = stream.Enable();
-                Console.WriteLine("Stream enable()");
-                Console.WriteLine(enabledStream.Disabled);
-                /*
-                 * false
-                 * 
-                 * */
+                stream.Disable();
             }
             catch (PiliException e)
             {
@@ -447,24 +238,28 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-            // Get Stream Status
+        }
+
+        private static void EnableStream(Stream stream)
+        {
             try
             {
-                var status = stream.Status();
-                Console.WriteLine("Stream Status()");
+                stream.Enable();
+            }
+            catch (PiliException e)
+            {
+                // TODO Auto-generated catch block
+                Console.WriteLine(e.ToString());
+                Console.Write(e.StackTrace);
+            }
+        }
+
+        private static void GetLiveStatus(Stream stream)
+        {
+            try
+            {
+                var status = stream.LiveStatus();
                 Console.WriteLine(status.ToString());
-                /*
-                {
-                    "addr":"222.73.202.226:2572",
-                    "status":"disconnected",
-                    "bytesPerSecond":0,
-                    "framesPerSecond":{
-                        "audio":0,
-                        "video":0,
-                        "data":0
-                     }
-                 }
-                */
             }
             catch (PiliException e)
             {
@@ -472,14 +267,13 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+        }
 
-            // Generate RTMP publish URL
+        private static void HistoryActivity(Stream stream)
+        {
             try
             {
-                var publishUrl = stream.RtmpPublishUrl();
-                Console.WriteLine("Stream rtmpPublishUrl()");
-                Console.WriteLine(publishUrl);
-                // rtmp://ey636h.publish.z1.pili.qiniup.com/test-hub/55d810aae3ba5723280000db?nonce=1440223404&token=hIVJje0ZOX9hp7yPIvGBmJ_6Qxo=
+                var records = stream.HistoryActivity(0, 0);
             }
             catch (PiliException e)
             {
@@ -487,35 +281,13 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-            // Generate RTMP live play URLs
-            var originUrl = stream.RtmpLiveUrls()[Stream.Origin];
-            Console.WriteLine("Stream rtmpLiveUrls()");
-            Console.WriteLine(originUrl);
-            // rtmp://ey636h.live1-rtmp.z1.pili.qiniucdn.com/test-hub/55d8113ee3ba5723280000dc
+        }
 
-            // Generate HLS play URLs
-            var originLiveHlsUrl = stream.HlsLiveUrls()[Stream.Origin];
-            Console.WriteLine("Stream hlsLiveUrls()");
-            Console.WriteLine(originLiveHlsUrl);
-            // http://ey636h.live1-http.z1.pili.qiniucdn.com/test-hub/55d8119ee3ba5723280000dd.m3u8
-
-            // Generate Http-Flv live play URLs
-            var originLiveFlvUrl = stream.HttpFlvLiveUrls()[Stream.Origin];
-            Console.WriteLine("Stream httpFlvLiveUrls()");
-            Console.WriteLine(originLiveFlvUrl);
-            // http://ey636h.live1-http.z1.pili.qiniucdn.com/test-hub/55d8119ee3ba5723280000dd.flv
-
-
-            // Generate HLS playback URLs
-            long startHlsPlayback = 1440315411; // required, in second, unix timestamp
-            long endHlsPlayback = 1440315435; // required, in second, unix timestamp
+        private void DeleteStream(Stream stream)
+        {
             try
             {
-                var hlsPlaybackUrl = stream.HlsPlaybackUrls(startHlsPlayback, endHlsPlayback)[Stream.Origin];
-
-                Console.WriteLine("Stream hlsPlaybackUrls()");
-                Console.WriteLine(hlsPlaybackUrl);
-                // http://ey636h.playback1.z1.pili.qiniucdn.com/test-hub/55d8119ee3ba5723280000dd.m3u8?start=1440315411&end=1440315435
+                stream.Delete();
             }
             catch (PiliException e)
             {
@@ -523,26 +295,13 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+        }
 
-
-            // Get Stream Status
+        private static void SavePlayback(Stream stream)
+        {
             try
             {
-                var status = stream.Status();
-                Console.WriteLine("Stream Status()");
-                Console.WriteLine(status.ToString());
-                /*
-                {
-                    "addr":"222.73.202.226:2572",
-                    "status":"disconnected",
-                    "bytesPerSecond":0,
-                    "framesPerSecond":{
-                        "audio":0,
-                        "video":0,
-                        "data":0
-                     }
-                 }
-                */
+                var response = stream.SaveAs(new Stream.SaveasOptions { Format = "mp4" });
             }
             catch (PiliException e)
             {
@@ -550,54 +309,13 @@ namespace pili_sdk_csharp_example
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
-
-
-            // Delete a Stream
+        }
+        private static void SaveSnapshot(Stream stream)
+        {
             try
             {
-                var res = stream.Delete();
-                Console.WriteLine("Stream delete()");
-                Console.WriteLine(res);
-                // No Content
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-            //////////////////////////////////////////////////////////////////////////////////////////
-            // Stream end
-
-            try
-            {
-                stream = hub.GetStream(stream.StreamId);
-                Console.WriteLine("hub.getStream:");
-                Console.WriteLine(stream.ToJsonString());
-                /*
-                {
-                    "id":"z1.test-hub.55d80075e3ba5723280000d2",
-                    "createdAt":"2015-08-22T04:54:13.539Z",
-                    "updatedAt":"2015-08-22T04:54:13.539Z",
-                    "title":"55d80075e3ba5723280000d2",
-                    "hub":"test-hub",
-                    "disabled":false,
-                    "publishKey":"ca11e07f094c3a6e",
-                    "publishSecurity":"dynamic",
-                    "hosts":{
-                        "publish":{
-                            "rtmp":"ey636h.publish.z1.pili.qiniup.com"
-                         },
-                         "live":{
-                             "http":"ey636h.live1-http.z1.pili.qiniucdn.com",
-                             "rtmp":"ey636h.live1-rtmp.z1.pili.qiniucdn.com"
-                         },
-                         "playback":{
-                             "http":"ey636h.playback1.z1.pili.qiniucdn.com"
-                         }
-                     }
-                 }
-                 */
+                var response = stream.Snapshot(new Stream.SnapshotOptions { Format = "jpg" });
+                Console.WriteLine(response);
             }
             catch (PiliException e)
             {
