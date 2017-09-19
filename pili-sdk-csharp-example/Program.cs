@@ -1,16 +1,12 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Diagnostics;
 using pili_sdk_csharp.pili;
 using pili_sdk_csharp.pili_qiniu;
 
 namespace pili_sdk_csharp_example
 {
-    internal class Example
+    public class Example
     {
-        
-
         // Replace with your keys here
         private const string AccessKey = "";
 
@@ -27,7 +23,7 @@ namespace pili_sdk_csharp_example
         // static {
         //     Configuration.getInstance().setAPIHost("pili.qiniuapi.com"); // default
         // }
-        private static void Main(List<string> args)
+        private static void Main(string[] args)
         {
             var credentials = new Credentials(AccessKey, SecretKey);
             var hub = new Hub(credentials, HubName);
@@ -112,6 +108,7 @@ namespace pili_sdk_csharp_example
             Console.WriteLine(url);
             Console.ReadKey();
         }
+
         private static Stream CreateStream(Hub hub, string streamKey)
         {
             try
@@ -144,7 +141,6 @@ namespace pili_sdk_csharp_example
 
         private Stream.StreamInfo StreamInfo(Stream stream)
         {
-
             try
             {
                 return stream.Info();
@@ -310,6 +306,7 @@ namespace pili_sdk_csharp_example
                 Console.Write(e.StackTrace);
             }
         }
+
         private static void SaveSnapshot(Stream stream)
         {
             try

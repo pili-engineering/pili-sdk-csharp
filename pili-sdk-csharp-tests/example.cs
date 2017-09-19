@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using pili_sdk_csharp.pili;
 using pili_sdk_csharp.pili_qiniu;
 using Xunit;
@@ -68,7 +67,6 @@ namespace pili_sdk_csharp
 
         private Stream.StreamInfo StreamInfo(Stream stream)
         {
-
             try
             {
                 return stream.Info();
@@ -140,7 +138,7 @@ namespace pili_sdk_csharp
         {
             try
             {
-                stream.UpdateConverts(new List<string>{"480p", "720p"});
+                stream.UpdateConverts(new List<string> { "480p", "720p" });
             }
             catch (PiliException e)
             {
@@ -225,7 +223,7 @@ namespace pili_sdk_csharp
         {
             try
             {
-                var response = stream.SaveAs(new Stream.SaveasOptions{Format = "mp4"});
+                var response = stream.SaveAs(new Stream.SaveasOptions { Format = "mp4" });
             }
             catch (PiliException e)
             {
@@ -234,11 +232,12 @@ namespace pili_sdk_csharp
                 Console.Write(e.StackTrace);
             }
         }
+
         private void SaveSnapshot(Stream stream)
         {
             try
             {
-                var response = stream.Snapshot(new Stream.SnapshotOptions{Format = "jpg"});
+                var response = stream.Snapshot(new Stream.SnapshotOptions { Format = "jpg" });
                 Console.WriteLine(response);
             }
             catch (PiliException e)
@@ -254,7 +253,7 @@ namespace pili_sdk_csharp
         public void Test()
         {
             Check();
-            var credentials = new Credentials(AccessKey, SecretKey); 
+            var credentials = new Credentials(AccessKey, SecretKey);
             var hub = new Hub(credentials, HubName);
 
             const string keyA = "1234567";

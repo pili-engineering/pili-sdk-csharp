@@ -148,24 +148,6 @@ namespace pili_sdk_csharp.pili
                 Console.Write(e.StackTrace);
                 throw new PiliException(e);
             }
-
-            // response never be null
-            if ((int)response.StatusCode != 200)
-            {
-                try
-                {
-                    var reader = new StreamReader(response.GetResponseStream());
-                    var text = reader.ReadToEnd();
-                    var jsonObj = JObject.Parse(text);
-                    throw new PiliException(jsonObj["error"].ToString());
-                }
-                catch (IOException e)
-                {
-                    Console.WriteLine(e.ToString());
-                    Console.Write(e.StackTrace);
-                    throw new PiliException(e);
-                }
-            }
         }
 
         public static JObject LiveStatus(Credentials credentials, string hubName, string ekey)
@@ -363,24 +345,6 @@ namespace pili_sdk_csharp.pili
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
                 throw new PiliException(e);
-            }
-
-            // response never be null
-            if ((int)response.StatusCode != 200)
-            {
-                try
-                {
-                    var reader = new StreamReader(response.GetResponseStream());
-                    var text = reader.ReadToEnd();
-                    var jsonObj = JObject.Parse(text);
-                    throw new PiliException(jsonObj["error"].ToString());
-                }
-                catch (IOException e)
-                {
-                    Console.WriteLine(e.ToString());
-                    Console.Write(e.StackTrace);
-                    throw new PiliException(e);
-                }
             }
         }
 
