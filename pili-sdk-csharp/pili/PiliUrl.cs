@@ -11,6 +11,7 @@ namespace pili_sdk_csharp.pili
             const string defaultScheme = "rtmp";
             return $"{defaultScheme}://{domain}/{hubName}/{key}?e={expire}&token={token}";
         }
+
         public static string RTMPPlayURL(string domain, string hubName, string key)
         {
             return $"rtmp://{domain}/{hubName}/{key}";

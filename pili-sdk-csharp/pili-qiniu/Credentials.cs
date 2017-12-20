@@ -64,6 +64,7 @@ namespace pili_sdk_csharp.pili_qiniu
             {
                 sb.Append(Encoding.UTF8.GetString(body));
             }
+
             return $"{DigestAuthPrefix} {_accessKey}:{SignData(sb.ToString())}";
         }
 
@@ -80,6 +81,7 @@ namespace pili_sdk_csharp.pili_qiniu
             {
                 throw new Exception("Failed to generate HMAC : " + e.Message);
             }
+
             return sign;
         }
     }

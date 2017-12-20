@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>pili_sdk_csharp_example</RootNamespace>
     <AssemblyName>pili-sdk-csharp-example</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />

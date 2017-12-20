@@ -6,33 +6,26 @@ using Xunit;
 
 namespace pili_sdk_csharp
 {
-    public class Example
+    public class APITest
     {
-        // Replace with your keys here
+        // Replace with your keys here ( https://portal.qiniu.com/user/key )
         private const string AccessKey = "";
-
         private const string SecretKey = "";
 
-        // Replace with your hub name
+        // Replace with your hub name ( https://portal.qiniu.com/hub )
         private const string HubName = "";
 
-        // Change API host as necessary
-        //
-        // pili.qiniuapi.com as default
-        // pili-lte.qiniuapi.com is the latest RC version
-        //
-        // static {
-        //     Configuration.getInstance().setAPIHost("pili.qiniuapi.com"); // default
-        // }
+        // Replace with your domain ( https://portal.qiniu.com/hub/{your_hub}/domain )
+        private const string Domain = "example.com";
 
-        private void Check()
+        private static void PreCheck()
         {
             Assert.NotNull(AccessKey);
-            Assert.NotEqual(AccessKey, "");
+            Assert.NotEqual("", AccessKey);
             Assert.NotNull(SecretKey);
-            Assert.NotEqual(SecretKey, "");
+            Assert.NotEqual("", SecretKey);
             Assert.NotNull(HubName);
-            Assert.NotEqual(HubName, "");
+            Assert.NotEqual("", HubName);
         }
 
         private Stream CreateStream(Hub hub, string streamKey)
@@ -47,6 +40,7 @@ namespace pili_sdk_csharp
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+
             return null;
         }
 
@@ -62,6 +56,7 @@ namespace pili_sdk_csharp
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+
             return null;
         }
 
@@ -77,6 +72,7 @@ namespace pili_sdk_csharp
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+
             return null;
         }
 
@@ -248,15 +244,14 @@ namespace pili_sdk_csharp
             }
         }
 
-
         [Fact]
         public void Test()
         {
-            Check();
+            PreCheck();
             var credentials = new Credentials(AccessKey, SecretKey);
             var hub = new Hub(credentials, HubName);
 
-            const string keyA = "1234567";
+            const string keyA = "SomeTestA";
             const string keyB = "SomeTestB";
             Console.WriteLine("获得不存在的流A:");
             GetStream(hub, keyA);
@@ -271,10 +266,8 @@ namespace pili_sdk_csharp
             Console.WriteLine("创建重复流:");
             CreateStream(hub, keyA);
 
-
             Console.WriteLine("创建另一路流:");
             CreateStream(hub, keyB);
-
 
             Console.WriteLine("列出流:");
             ListStreams(hub, "");
@@ -307,33 +300,33 @@ namespace pili_sdk_csharp
             SaveSnapshot(stream);
 
             Console.WriteLine("RTMP 推流地址:");
-            var url = PiliUrl.RTMPPublishURL(credentials, "pili-publish.mowa-cloud.com", HubName, keyA, 3600);
+            var url = PiliUrl.RTMPPublishURL(credentials, $"pili-publish.{Domain}", HubName, keyA, 3600);
             Console.WriteLine(url);
-            url = stream.RTMPPublishURL("pili-publish.mowa-cloud.com", 3600);
+            url = stream.RTMPPublishURL($"pili-publish.{Domain}", 3600);
             Console.WriteLine(url);
 
             Console.WriteLine("RTMP 直播放址:");
-            url = PiliUrl.RTMPPlayURL("pili-live-rtmp.mowa-cloud.com", HubName, keyA);
+            url = PiliUrl.RTMPPlayURL($"pili-live-rtmp.{Domain}", HubName, keyA);
             Console.WriteLine(url);
-            url = stream.RTMPPlayURL("pili-live-rtmp.mowa-cloud.com");
+            url = stream.RTMPPlayURL($"pili-live-rtmp.{Domain}");
             Console.WriteLine(url);
 
             Console.WriteLine("HLS 直播地址:");
-            url = PiliUrl.HLSPlayURL("pili-live-hls.mowa-cloud.com", HubName, keyA);
+            url = PiliUrl.HLSPlayURL($"pili-live-hls.{Domain}", HubName, keyA);
             Console.WriteLine(url);
-            url = stream.HLSPlayURL("pili-live-hls.mowa-cloud.com");
+            url = stream.HLSPlayURL($"pili-live-hls.{Domain}");
             Console.WriteLine(url);
 
             Console.WriteLine("HDL 直播地址:");
-            url = PiliUrl.HDLPlayURL("pili-live-hdl.mowa-cloud.com", HubName, keyA);
+            url = PiliUrl.HDLPlayURL($"pili-live-hdl.{Domain}", HubName, keyA);
             Console.WriteLine(url);
-            url = stream.HDLPlayURL("pili-live-hdl.mowa-cloud.com");
+            url = stream.HDLPlayURL($"pili-live-hdl.{Domain}");
             Console.WriteLine(url);
 
             Console.WriteLine("截图直播地址:");
-            url = PiliUrl.SnapshotPlayURL("pili-live-snapshot.mowa-cloud.com", HubName, keyA);
+            url = PiliUrl.SnapshotPlayURL($"pili-live-snapshot.{Domain}", HubName, keyA);
             Console.WriteLine(url);
-            url = stream.SnapshotPlayURL("pili-live-snapshot.mowa-cloud.com");
+            url = stream.SnapshotPlayURL($"pili-live-snapshot.{Domain}");
             Console.WriteLine(url);
         }
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,10 +11,10 @@ namespace pili_sdk_csharp.pili
     public class Stream
     {
         public const string Origin = "ORIGIN";
-        private readonly Credentials _mCredentials;
+        private readonly string _ekey;
         private readonly string _hubName;
         private readonly string _key;
-        private readonly string _ekey;
+        private readonly Credentials _mCredentials;
 
         public Stream(string hubName, string key, Credentials credentials)
         {
@@ -128,10 +127,6 @@ namespace pili_sdk_csharp.pili
                 DisabledTill = Convert.ToInt64(info["disabledTill"].ToString());
                 WaterMark = (bool)info["watermark"];
             }
-            public bool Disabled()
-            {
-                return DisabledTill == -1 || DisabledTill > DateTimeHelper.CurrentUnixTimeSeconds();
-            }
 
             public string HubName { get; }
             public string Key { get; }
@@ -141,6 +136,11 @@ namespace pili_sdk_csharp.pili
             public long UpdatedAt { get; }
             public long DisabledTill { get; set; }
             public bool WaterMark { get; set; }
+
+            public bool Disabled()
+            {
+                return DisabledTill == -1 || DisabledTill > DateTimeHelper.CurrentUnixTimeSeconds();
+            }
         }
 
         public class FPSStatus
@@ -183,12 +183,13 @@ namespace pili_sdk_csharp.pili
                     Console.WriteLine(e.ToString());
                     Console.Write(e.StackTrace);
                 }
+
                 _mJsonString = jsonObj.ToString();
             }
 
             public virtual string ClientIP { get; }
 
-            public virtual Int64 StartAt { get; }
+            public virtual long StartAt { get; }
 
             public virtual float Bps { get; }
 
@@ -222,7 +223,9 @@ namespace pili_sdk_csharp.pili
             public long End { get; set; }
             public string Format { get; set; }
             public string Pipeline { get; set; }
+
             public string Notify { get; set; }
+
             // 对应ts文件的过期时间.
             // -1 表示不修改ts文件的expire属性.
             // 0  表示修改ts文件生命周期为永久保存.
@@ -237,6 +240,7 @@ namespace pili_sdk_csharp.pili
                 Fname = jsonObj["fname"].ToString();
                 PersistentId = jsonObj["persistentID"].ToString();
             }
+
             public string Fname { get; set; }
             public string PersistentId { get; set; }
         }

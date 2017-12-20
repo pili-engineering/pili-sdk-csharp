@@ -16,6 +16,7 @@ namespace pili_sdk_csharp.pili_common
                 Console.WriteLine(e.ToString());
                 Console.Write(e.StackTrace);
             }
+
             return null;
         }
 

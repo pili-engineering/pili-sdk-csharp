@@ -23,6 +23,7 @@ namespace pili_sdk_csharp.pili
                 {
                     throw new ArgumentException("Illegal API Host:" + value);
                 }
+
                 API_HOST = value;
             }
         }
@@ -35,6 +36,7 @@ namespace pili_sdk_csharp.pili
                 {
                     throw new ArgumentException("Illegal API Version:" + value);
                 }
+
                 API_VERSION = value;
             }
         }

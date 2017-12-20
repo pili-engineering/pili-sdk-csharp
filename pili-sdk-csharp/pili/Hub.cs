@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using pili_sdk_csharp.pili_common;
 using pili_sdk_csharp.pili_qiniu;
@@ -52,7 +51,7 @@ namespace pili_sdk_csharp.pili
 
     public class LiveStatusWithKey
     {
-        public string Key{ get; set; }
+        public string Key { get; set; }
         public Stream.StreamStatus LiveStatus { get; set; }
     }
 
@@ -69,8 +68,10 @@ namespace pili_sdk_csharp.pili
                     Keys.Add(key);
                 }
             }
+
             Marker = jsonObj["marker"].ToString();
         }
+
         public List<string> Keys { get; set; }
         public string Marker { get; set; }
     }

@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <Version>2.0.0-alpha3</Version>
+    <TargetFrameworks>net45;net461;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <Version>2.0.0-beta</Version>
     <Description>An unofficial pili sdk which forks official pili-sdk-csharp.
-It added support for .NET Standard 2.0 and optimize naming style.</Description>
+It updated api version to v2 and added support for .NET Standard.</Description>
     <Authors>PM Extra</Authors>
-    <Company />
     <PackageProjectUrl>https://github.com/PMExtra/pili-sdk-csharp</PackageProjectUrl>
     <PackageTags>Qiniu pili live sdk</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

@@ -21,7 +21,6 @@ namespace pili_sdk_csharp.pili
         {
             //  System.out.println("createStream:" + API_BASE_URL);
             var urlStr = APIBaseUrl + $"/hubs/{hubName}/streams";
-            Console.WriteLine("API_BASE_URL---------" + APIBaseUrl);
 
             var json = new Dictionary<string, string>
             {
@@ -49,6 +48,7 @@ namespace pili_sdk_csharp.pili
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
+
                 response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
@@ -63,6 +63,7 @@ namespace pili_sdk_csharp.pili
             {
                 return new Stream(hubName, streamId, credentials);
             }
+
             throw new PiliException(response);
         }
 
@@ -92,6 +93,7 @@ namespace pili_sdk_csharp.pili
                 Console.Write(e.StackTrace);
                 throw new PiliException(e);
             }
+
             // response never be null
             if ((int)response.StatusCode == 200)
             {
@@ -108,6 +110,7 @@ namespace pili_sdk_csharp.pili
                     throw new PiliException(e);
                 }
             }
+
             throw new PiliException(response);
         }
 
@@ -140,6 +143,7 @@ namespace pili_sdk_csharp.pili
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
+
                 response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
@@ -192,6 +196,7 @@ namespace pili_sdk_csharp.pili
                     throw new PiliException(e);
                 }
             }
+
             throw new PiliException(response);
         }
 
@@ -201,6 +206,7 @@ namespace pili_sdk_csharp.pili
             {
                 options = new Stream.SaveasOptions();
             }
+
             var urlStr = $"{APIBaseUrl}/hubs/{hubName}/streams/{ekey}/saveas";
             HttpWebResponse response = null;
             try
@@ -224,6 +230,7 @@ namespace pili_sdk_csharp.pili
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
+
                 response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
@@ -249,6 +256,7 @@ namespace pili_sdk_csharp.pili
                     throw new PiliException(e);
                 }
             }
+
             throw new PiliException(response);
         }
 
@@ -258,6 +266,7 @@ namespace pili_sdk_csharp.pili
             {
                 options = new Stream.SnapshotOptions();
             }
+
             var urlStr = $"{APIBaseUrl}/hubs/{hubName}/streams/{ekey}/snapshot";
             HttpWebResponse response = null;
             try
@@ -281,6 +290,7 @@ namespace pili_sdk_csharp.pili
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
+
                 response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
@@ -306,6 +316,7 @@ namespace pili_sdk_csharp.pili
                     throw new PiliException(e);
                 }
             }
+
             throw new PiliException(response);
         }
 
@@ -338,6 +349,7 @@ namespace pili_sdk_csharp.pili
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
+
                 response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
@@ -390,6 +402,7 @@ namespace pili_sdk_csharp.pili
                     throw new PiliException(e);
                 }
             }
+
             throw new PiliException(response);
         }
 
@@ -422,6 +435,7 @@ namespace pili_sdk_csharp.pili
                 {
                     new MemoryStream(body).CopyTo(requestStream);
                 }
+
                 response = (HttpWebResponse)request.GetResponseAsync().Result;
             }
             catch (Exception e)
@@ -447,6 +461,7 @@ namespace pili_sdk_csharp.pili
                     throw new PiliException(e);
                 }
             }
+
             throw new PiliException(response);
         }
 
@@ -475,6 +490,7 @@ namespace pili_sdk_csharp.pili
                 Console.Write(e.StackTrace);
                 throw new PiliException(e);
             }
+
             // response never be null
             if ((int)response.StatusCode == 200)
             {
@@ -491,6 +507,7 @@ namespace pili_sdk_csharp.pili
                     throw new PiliException(e);
                 }
             }
+
             throw new PiliException(response);
         }
 
@@ -534,6 +551,7 @@ namespace pili_sdk_csharp.pili
                 var text = "No Content";
                 return text;
             }
+
             throw new PiliException(response);
         }
     }
