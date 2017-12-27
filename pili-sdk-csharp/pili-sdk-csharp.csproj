@@ -1,25 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net461;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <Version>2.0.0-beta</Version>
-    <Description>An unofficial pili sdk which forks official pili-sdk-csharp.
+    <TargetFrameworks>net45;net461;netstandard1.4;netstandard2.0</TargetFrameworks>
+    <Version>2.1.0-alpha</Version>
+    <Description>An unofficial pili sdk that ported from pili-sdk-java.
 It updated api version to v2 and added support for .NET Standard.</Description>
     <Authors>PM Extra</Authors>
     <PackageProjectUrl>https://github.com/PMExtra/pili-sdk-csharp</PackageProjectUrl>
     <PackageTags>Qiniu pili live sdk</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RootNamespace>Qiniu.Pili</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup Condition="$(TargetFramework) == 'net45'">
-    <Reference Include="System.Web" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
-  
-  <ItemGroup Condition="$(TargetFramework) == 'netstandard1.3'">
-    <PackageReference Include="System.Net.Requests" Version="4.3.0" />
+
+  <ItemGroup Condition="$(TargetFramework) == 'net461'">
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
-  
+
   <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.1.5" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
