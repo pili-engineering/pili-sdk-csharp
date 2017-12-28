@@ -33,7 +33,7 @@ namespace Qiniu.Pili
             sb.Append($"{method} {uri.PathAndQuery}");
             sb.Append($"\nHost: {uri.Host}");
 
-            if (uri.Port > 0)
+            if (!uri.IsDefaultPort)
             {
                 sb.Append($":{uri.Port:D}");
             }
