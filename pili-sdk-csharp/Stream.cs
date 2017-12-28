@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Qiniu.Pili.Internal;
 using Qiniu.Pili.Streams;
 
 namespace Qiniu.Pili

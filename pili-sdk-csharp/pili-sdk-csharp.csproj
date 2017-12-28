@@ -23,7 +23,6 @@ It updated api version to v2 and added support for .NET Standard.</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.1.5" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 

@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
 using Qiniu.Pili.Internal;
 
 namespace Qiniu.Pili
