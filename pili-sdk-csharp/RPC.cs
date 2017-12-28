@@ -30,7 +30,9 @@ namespace Qiniu.Pili
 
             var content = new ByteArrayContent(body);
             content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
-            content.Headers.Add("Authorization", $"Qiniu {macToken}");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
+            request.Headers.Add("Authorization", $"Qiniu {macToken}");
 
             var response = await HttpClient.PostAsync(uri, content, cancellationToken);
 
