@@ -25,7 +25,7 @@ namespace Qiniu.Pili
         public HttpResponseMessage Response { get; }
 
         public virtual int Code => Response == null ? -1 : (int)Response.StatusCode;
-        
+
         public virtual bool Duplicate => Code == 614;
 
         public virtual bool NotFound => Code == 612;

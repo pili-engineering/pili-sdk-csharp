@@ -5,21 +5,6 @@ namespace Qiniu.Pili.Meetings
 {
     internal class RoomAccess
     {
-        [JsonProperty(PropertyName = "expire_at")]
-        internal long ExpireAt;
-
-        [JsonProperty(PropertyName = "perm")]
-        internal string Perm;
-
-        [JsonProperty(PropertyName = "room_name")]
-        internal string RoomName;
-
-        [JsonProperty(PropertyName = "user_id")]
-        internal string UserId;
-
-        [JsonProperty(PropertyName = "version")]
-        internal string Version;
-
         internal RoomAccess(string roomName, string userId, string perm, DateTime expireAt)
         {
             RoomName = roomName;
@@ -37,5 +22,20 @@ namespace Qiniu.Pili.Meetings
             ExpireAt = expireAt.Ticks / 1000;
             Version = version;
         }
+
+        [JsonProperty(PropertyName = "expire_at")]
+        internal long ExpireAt { get; set; }
+
+        [JsonProperty(PropertyName = "perm")]
+        internal string Perm { get; set; }
+
+        [JsonProperty(PropertyName = "room_name")]
+        internal string RoomName { get; set; }
+
+        [JsonProperty(PropertyName = "user_id")]
+        internal string UserId { get; set; }
+
+        [JsonProperty(PropertyName = "version")]
+        internal string Version { get; set; }
     }
 }

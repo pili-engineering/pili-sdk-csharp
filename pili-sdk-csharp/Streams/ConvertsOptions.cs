@@ -2,11 +2,11 @@
 {
     internal class ConvertsOptions
     {
-        internal string[] Converts;
-
         public ConvertsOptions(string[] converts)
         {
             Converts = converts;
         }
+
+        internal string[] Converts { get; set; }
     }
 }

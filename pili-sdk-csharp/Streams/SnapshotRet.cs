@@ -2,6 +2,6 @@
 {
     internal class SnapshotRet
     {
-        internal string Fname;
+        internal string Fname { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 {
     internal class SaveRetFull
     {
-        internal string Fname;
-        internal string PersistentId;
+        internal string Fname { get; set; }
+        internal string PersistentId { get; set; }
     }
 }

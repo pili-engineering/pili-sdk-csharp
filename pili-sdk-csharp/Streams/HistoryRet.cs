@@ -2,6 +2,6 @@
 {
     internal class HistoryRet
     {
-        internal Record[] Items;
+        internal Record[] Items { get; set; }
     }
 }
