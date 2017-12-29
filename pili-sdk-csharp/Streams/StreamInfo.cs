@@ -1,4 +1,6 @@
-﻿namespace Qiniu.Pili.Streams
+﻿using Newtonsoft.Json;
+
+namespace Qiniu.Pili.Streams
 {
     public sealed class StreamInfo
     {
@@ -11,13 +13,17 @@
             SetMeta(hub, key);
         }
 
-        public string Hub { get; internal set; }
+        [JsonProperty]
+        public string Hub { get; private set; }
 
-        public long DisabledTill { get; internal set; }
+        [JsonProperty]
+        public long DisabledTill { get; private set; }
 
-        public string Key { get; internal set; }
+        [JsonProperty]
+        public string Key { get; private set; }
 
-        public string[] Converts { get; internal set; }
+        [JsonProperty]
+        public string[] Converts { get; private set; }
 
         internal void SetMeta(string hub, string key)
         {

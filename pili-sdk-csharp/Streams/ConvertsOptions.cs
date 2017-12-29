@@ -1,4 +1,6 @@
-﻿namespace Qiniu.Pili.Streams
+﻿using Newtonsoft.Json;
+
+namespace Qiniu.Pili.Streams
 {
     internal class ConvertsOptions
     {
@@ -7,6 +9,7 @@
             Converts = converts;
         }
 
-        internal string[] Converts { get; set; }
+        [JsonProperty]
+        private string[] Converts { get; set; }
     }
 }

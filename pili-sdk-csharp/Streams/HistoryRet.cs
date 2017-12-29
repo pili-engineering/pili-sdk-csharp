@@ -1,7 +1,10 @@
-﻿namespace Qiniu.Pili.Streams
+﻿using Newtonsoft.Json;
+
+namespace Qiniu.Pili.Streams
 {
     internal class HistoryRet
     {
-        internal Record[] Items { get; set; }
+        [JsonProperty]
+        public Record[] Items { get; set; }
     }
 }
