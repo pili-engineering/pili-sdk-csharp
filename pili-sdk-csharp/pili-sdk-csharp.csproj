@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net45;net461;netstandard1.4;netstandard2.0</TargetFrameworks>
-    <Version>2.1.0-alpha</Version>
+    <Version>2.1.0</Version>
     <Description>An unofficial pili sdk that ported from pili-sdk-java.
 It updated api version to v2 and added support for .NET Standard.</Description>
     <Authors>PM Extra</Authors>
