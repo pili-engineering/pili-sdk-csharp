@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using pili_sdk_csharp.pili;
-using pili_sdk_csharp.pili_qiniu;
+using Qiniu.Pili;
+using Qiniu.Pili.Meetings;
+using Qiniu.Pili.Streams;
 
 namespace pili_sdk_csharp_example
 {
@@ -19,303 +19,283 @@ namespace pili_sdk_csharp_example
 
         private static void Main(string[] args)
         {
-            var credentials = new Credentials(AccessKey, SecretKey);
-            var hub = new Hub(credentials, HubName);
-
-            const string keyA = "SomeTestA";
-            const string keyB = "SomeTestB";
-
+            var cli = new Client(AccessKey, SecretKey);
+            var hub = cli.NewHub(HubName);
+            const string prefix = "SomeTest";
+            const string keyA = prefix + "A";
+            const string keyB = prefix + "B";
+            const string roomName = "test12Room";
+            var meeting = cli.NewMeeting();
             Console.WriteLine("获得不存在的流A:");
-            GetStream(hub, keyA);
+            try
+            {
+                hub.Get(keyA);
+            }
+            catch (PiliException e)
+            {
+                if (e.NotFound)
+                {
+                    Console.WriteLine($"Stream {keyA} doesn't exist");
+                }
+                else
+                {
+                    Console.WriteLine($"{keyA} should not exist");
+                    Console.WriteLine(e.StackTrace);
+                    throw;
+                }
+            }
+
+            Console.WriteLine($"keyA={keyA} 不存在");
 
             Console.WriteLine("创建流:");
-            CreateStream(hub, keyA);
+            try
+            {
+                hub.Create(keyA);
+            }
+            catch (PiliException e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
 
+            Console.WriteLine($"KeyA={keyA} 创建");
+
+            Stream streamA;
             Console.WriteLine("获得流:");
-            var stream = GetStream(hub, keyA);
+            try
+            {
+                streamA = hub.Get(keyA);
+            }
+            catch (PiliException e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
+
+            Console.WriteLine($"keyA={keyA} 查询: {streamA}");
 
             Console.WriteLine("创建重复流:");
-            CreateStream(hub, keyA);
+            try
+            {
+                hub.Create(keyA);
+            }
+            catch (PiliException e)
+            {
+                if (!e.Duplicate)
+                {
+                    Console.WriteLine(e.StackTrace);
+                    throw;
+                }
+            }
 
+            Console.WriteLine($"keyA=%{keyA} 已存在");
+
+            Stream streamB;
             Console.WriteLine("创建另一路流:");
-            CreateStream(hub, keyB);
+            try
+            {
+                streamB = hub.Create(keyB);
+            }
+            catch (PiliException e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
+
+            Console.WriteLine($"keyB={keyB} 创建: {streamB}");
 
             Console.WriteLine("列出流:");
-            ListStreams(hub, "");
+            try
+            {
+                var listRet = hub.List(prefix, 0, "");
+                var list = listRet.Keys;
+                foreach (var s in list)
+                {
+                    Console.WriteLine(s);
+                }
+
+                Console.WriteLine($"marker: {listRet.Omarker}");
+            }
+            catch (PiliException e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
+
 
             Console.WriteLine("列出正在直播的流:");
-            ListLiveStreams(hub, "");
+            try
+            {
+                var listRet = hub.ListLive(prefix, 0, "");
+                var list = listRet.Keys;
+                foreach (var s in list)
+                {
+                    Console.WriteLine(s);
+                }
 
-            Console.WriteLine("批量查询直播信息:");
-            BatchQueryLiveStreams(hub, new List<string> { keyA, keyB });
-
-            Console.WriteLine("更改流的实时转码规格:");
-            UpdateStreamConverts(stream);
+                Console.WriteLine($"marker: {listRet.Omarker}");
+            }
+            catch (PiliException e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
 
             Console.WriteLine("禁用流:");
-            DisableStream(stream);
+            try
+            {
+                streamA.Enable();
+                streamA = hub.Get(keyA);
+            }
+            catch (PiliException e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
+
+            Console.WriteLine($"keyA={keyA} 启用: {streamA}");
 
             Console.WriteLine("启用流:");
-            EnableStream(stream);
+            try
+            {
+                streamA.Enable();
+                streamA = hub.Get(keyA);
+            }
+            catch (PiliException e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
+
+            Console.WriteLine($"keyA={keyA} 启用: {streamA}");
 
             Console.WriteLine("查询直播状态:");
-            GetLiveStatus(stream);
+            try
+            {
+                var status = streamA.LiveStatus();
+                Console.WriteLine($"keyA={keyA} 直播状态:status={status}");
+            }
+            catch (PiliException e)
+            {
+                if (!e.NotInLive)
+                {
+                    Console.WriteLine(e.StackTrace);
+                    throw;
+                }
+
+                Console.WriteLine($"keyA={keyA} 不在直播", keyA);
+            }
+
+            Console.WriteLine("更改流的实时转码规格:");
+            try
+
+            {
+                streamA.UpdateConverts(new[] { "480p", "720p" });
+            }
+            catch (PiliException e)
+            {
+                // TODO Auto-generated catch block
+                Console.WriteLine(e.ToString());
+                Console.Write(e.StackTrace);
+            }
+
 
             Console.WriteLine("查询推流历史:");
-            HistoryActivity(stream);
+            try
+            {
+                var records = streamA.HistoryRecord(0, 0);
+                foreach (var record in records)
+                {
+                    Console.WriteLine($"Record start={record.Start}, end={record.End}");
+                }
+            }
+            catch (PiliException e)
+            {
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
 
             Console.WriteLine("保存直播数据:");
-            SavePlayback(stream);
+            try
+            {
+                var fName = streamA.Save(0, 0);
+                Console.WriteLine($"keyA={keyA} 保存直播数据: fname={fName}\n");
+            }
+            catch (PiliException e)
+            {
+                if (!e.NotInLive)
+                {
+                    Console.WriteLine(e.StackTrace);
+                    throw;
+                }
 
-            Console.WriteLine("保存直播截图:");
-            SaveSnapshot(stream);
+                Console.WriteLine($"keyA={keyA} 不在直播\n");
+            }
+
+            Console.WriteLine("保存直播数据并获取作业id:");
+            try
+            {
+                var options = new SaveOptions
+                {
+                    Start = 0,
+                    End = 0,
+                    Format = "mp4"
+                };
+
+                var ret = streamA.SaveReturn(options);
+                ret.TryGetValue("fname", out var fName);
+                Console.WriteLine("fname:" + fName);
+                ret.TryGetValue("fname", out var persistentId);
+                Console.WriteLine("persistentID:" + persistentId);
+            }
+            catch (PiliException e)
+            {
+                if (!e.NotInLive)
+                {
+                    Console.WriteLine(e.StackTrace);
+                    throw;
+                }
+
+                Console.WriteLine($"keyA={keyA} 不在直播\n");
+            }
 
             Console.WriteLine("RTMP 推流地址:");
-            var url = PiliUrl.RTMPPublishURL(credentials, $"pili-publish.{Domain}", HubName, keyA, 3600);
-            Console.WriteLine(url);
-            url = stream.RTMPPublishURL($"pili-publish.{Domain}", 3600);
-            Console.WriteLine(url);
+            var url = cli.RTMPPublishURL("pili-publish." + Domain, HubName, keyA, 3600);
+            Console.WriteLine($"keyA={keyA} RTMP推流地址={url}");
 
             Console.WriteLine("RTMP 直播放址:");
-            url = PiliUrl.RTMPPlayURL($"pili-live-rtmp.{Domain}", HubName, keyA);
-            Console.WriteLine(url);
-            url = stream.RTMPPlayURL($"pili-live-rtmp.{Domain}");
-            Console.WriteLine(url);
+            url = cli.RTMPPlayURL("pili-live-rtmp." + Domain, HubName, keyA);
+            Console.WriteLine($"keyA={keyA} RTMP直播地址={url}");
 
             Console.WriteLine("HLS 直播地址:");
-            url = PiliUrl.HLSPlayURL($"pili-live-hls.{Domain}", HubName, keyA);
-            Console.WriteLine(url);
-            url = stream.HLSPlayURL($"pili-live-hls.{Domain}");
-            Console.WriteLine(url);
+            url = cli.HLSPlayURL("pili-live-hls." + Domain, HubName, keyA);
+            Console.WriteLine($"keyA={keyA} HLS直播地址={url}");
 
             Console.WriteLine("HDL 直播地址:");
-            url = PiliUrl.HDLPlayURL($"pili-live-hdl.{Domain}", HubName, keyA);
-            Console.WriteLine(url);
-            url = stream.HDLPlayURL($"pili-live-hdl.{Domain}");
-            Console.WriteLine(url);
+            url = cli.HDLPlayURL("pili-live-hls." + Domain, HubName, keyA);
+            Console.WriteLine($"keyA={keyA} HDL直播地址={url}");
 
             Console.WriteLine("截图直播地址:");
-            url = PiliUrl.SnapshotPlayURL($"pili-live-snapshot.{Domain}", HubName, keyA);
-            Console.WriteLine(url);
-            url = stream.SnapshotPlayURL($"pili-live-snapshot.{Domain}");
-            Console.WriteLine(url);
+            url = cli.SnapshotPlayURL("pili-live-smapshot." + Domain, HubName, keyA);
+            Console.WriteLine($"keyA={keyA} 截图直播地址={url}");
+
+            Console.WriteLine("创建房间:");
+            var r1 = meeting.CreateRoom("123", roomName, 12);
+            Console.WriteLine($"Expect RoomName: {roomName}, Actual: {r1}");
+            var room = meeting.GetRoom(roomName);
+            Console.WriteLine("roomName:" + room.Name);
+            Console.WriteLine("roomStatus:" + room.Status);
+            Console.WriteLine($"Expect RoomName: {roomName}, Actual: {room.Name}");
+            Console.WriteLine($"Expect OwnerId: admin, Actual: {room.OwnerId}");
+            Console.WriteLine($"Expect Status: {Status.New}, Actual: {room.Status}");
+
+            var token = meeting.RoomToken("room1", "123", "admin", new DateTime(1785600000000L));
+            Console.WriteLine($"Token:{token}");
+
+            Console.WriteLine("删除房间:");
+            meeting.DeleteRoom(roomName);
+
             Console.ReadKey();
-        }
-
-        private static Stream CreateStream(Hub hub, string streamKey)
-        {
-            try
-            {
-                return hub.CreateStream(streamKey);
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-
-            return null;
-        }
-
-        private static Stream GetStream(Hub hub, string streamId)
-        {
-            try
-            {
-                return hub.GetStream(streamId);
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-
-            return null;
-        }
-
-        private Stream.StreamInfo StreamInfo(Stream stream)
-        {
-            try
-            {
-                return stream.Info();
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-
-            return null;
-        }
-
-        private static void ListStreams(Hub hub, string prefix)
-        {
-            try
-            {
-                var streamList = hub.List(prefix, 10, "");
-                Console.WriteLine("marker:" + streamList.Marker);
-                var list = streamList.Keys;
-                foreach (var s in list)
-                {
-                    Console.WriteLine(s);
-                }
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void ListLiveStreams(Hub hub, string prefix)
-        {
-            try
-            {
-                var streamList = hub.ListLive(prefix, 10, "");
-                Console.WriteLine("marker:" + streamList.Marker);
-                var list = streamList.Keys;
-                foreach (var s in list)
-                {
-                    Console.WriteLine(s);
-                }
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void BatchQueryLiveStreams(Hub hub, List<string> streamkeys)
-        {
-            try
-            {
-                var liveStatus = hub.BatchLiveStatus(streamkeys);
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void UpdateStreamConverts(Stream stream)
-        {
-            try
-            {
-                stream.UpdateConverts(new List<string> { "480p", "720p" });
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void DisableStream(Stream stream)
-        {
-            try
-            {
-                stream.Disable();
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void EnableStream(Stream stream)
-        {
-            try
-            {
-                stream.Enable();
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void GetLiveStatus(Stream stream)
-        {
-            try
-            {
-                var status = stream.LiveStatus();
-                Console.WriteLine(status.ToString());
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void HistoryActivity(Stream stream)
-        {
-            try
-            {
-                var records = stream.HistoryActivity(0, 0);
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private void DeleteStream(Stream stream)
-        {
-            try
-            {
-                stream.Delete();
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void SavePlayback(Stream stream)
-        {
-            try
-            {
-                var response = stream.SaveAs(new Stream.SaveasOptions { Format = "mp4" });
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
-        }
-
-        private static void SaveSnapshot(Stream stream)
-        {
-            try
-            {
-                var response = stream.Snapshot(new Stream.SnapshotOptions { Format = "jpg" });
-                Console.WriteLine(response);
-            }
-            catch (PiliException e)
-            {
-                // TODO Auto-generated catch block
-                Console.WriteLine(e.ToString());
-                Console.Write(e.StackTrace);
-            }
         }
     }
 }
