@@ -1,7 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pili-sdk-csharp", "pili-sdk-csharp\pili-sdk-csharp.csproj", "{AED2A63D-296C-4B6D-A0F1-C0CDBE612584}"
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.10
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pili-sdk-csharp", "pili-sdk-csharp\pili-sdk-csharp.csproj", "{9D2BABBA-F458-43E7-81A4-55A01CFA8F60}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pili-sdk-csharp-tests", "pili-sdk-csharp-tests\pili-sdk-csharp-tests.csproj", "{54C0B2AE-18C7-417B-ADF5-912D25CC14B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pili-sdk-csharp-example", "pili-sdk-csharp-example\pili-sdk-csharp-example.csproj", "{148C2492-0529-4B36-BF12-19E8E6A63A1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,12 +15,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AED2A63D-296C-4B6D-A0F1-C0CDBE612584}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AED2A63D-296C-4B6D-A0F1-C0CDBE612584}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AED2A63D-296C-4B6D-A0F1-C0CDBE612584}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AED2A63D-296C-4B6D-A0F1-C0CDBE612584}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D2BABBA-F458-43E7-81A4-55A01CFA8F60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D2BABBA-F458-43E7-81A4-55A01CFA8F60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D2BABBA-F458-43E7-81A4-55A01CFA8F60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D2BABBA-F458-43E7-81A4-55A01CFA8F60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54C0B2AE-18C7-417B-ADF5-912D25CC14B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54C0B2AE-18C7-417B-ADF5-912D25CC14B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54C0B2AE-18C7-417B-ADF5-912D25CC14B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54C0B2AE-18C7-417B-ADF5-912D25CC14B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{148C2492-0529-4B36-BF12-19E8E6A63A1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{148C2492-0529-4B36-BF12-19E8E6A63A1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{148C2492-0529-4B36-BF12-19E8E6A63A1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{148C2492-0529-4B36-BF12-19E8E6A63A1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {29EDBAF8-EAF9-4F97-822B-DFF0F2FAB901}
 	EndGlobalSection
 EndGlobal
