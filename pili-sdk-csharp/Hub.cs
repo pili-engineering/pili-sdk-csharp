@@ -56,7 +56,7 @@ namespace Qiniu.Pili
                 var ekey = Base64UrlEncoder.Encode(streamKey);
                 var path = $"{_baseUrl}/streams/{ekey}";
 
-                var resp = _cli.CallWithGetAsync(path).Result;
+                var resp = _cli.CallWithGetAsync(path).GetAwaiter().GetResult();
                 var ret = JsonConvert.DeserializeObject<StreamInfo>(resp);
                 ret.SetMeta(_hub, streamKey);
                 return new Stream(ret, _cli);
@@ -76,7 +76,7 @@ namespace Qiniu.Pili
             var path = $"{_baseUrl}/streams?liveonly={live}&prefix={prefix}&limit={limit:D}&marker={marker}";
             try
             {
-                var resp = _cli.CallWithGetAsync(path).Result;
+                var resp = _cli.CallWithGetAsync(path).GetAwaiter().GetResult();
 
                 var ret = JsonConvert.DeserializeObject<ApiRet>(resp);
 
@@ -127,7 +127,7 @@ namespace Qiniu.Pili
             var json = JsonConvert.SerializeObject(new BatchLiveStatusOptions(streamTitles));
             try
             {
-                var resp = _cli.CallWithJsonAsync(path, json).Result;
+                var resp = _cli.CallWithJsonAsync(path, json).GetAwaiter().GetResult();
 
                 var ret = JsonConvert.DeserializeObject<BatchLiveStatusRet>(resp);
                 return ret.Items;

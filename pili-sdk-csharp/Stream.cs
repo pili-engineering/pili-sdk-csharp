@@ -58,7 +58,7 @@ namespace Qiniu.Pili
         {
             try
             {
-                var resp = _cli.CallWithGetAsync(_baseUrl).Result;
+                var resp = _cli.CallWithGetAsync(_baseUrl).GetAwaiter().GetResult();
                 var ret = JsonConvert.DeserializeObject<StreamInfo>(resp);
                 ret.SetMeta(_info.Hub, _info.Key);
                 _info = ret;
@@ -110,7 +110,7 @@ namespace Qiniu.Pili
             var path = _baseUrl + "/live";
             try
             {
-                var resp = _cli.CallWithGetAsync(path).Result;
+                var resp = _cli.CallWithGetAsync(path).GetAwaiter().GetResult();
                 var status = JsonConvert.DeserializeObject<LiveStatus>(resp);
                 return status;
             }
@@ -145,7 +145,7 @@ namespace Qiniu.Pili
 
             try
             {
-                var resp = _cli.CallWithJsonAsync(path, json).Result;
+                var resp = _cli.CallWithJsonAsync(path, json).GetAwaiter().GetResult();
                 var ret = JsonConvert.DeserializeObject<SaveRet>(resp);
                 return ret.Fname;
             }
@@ -167,11 +167,13 @@ namespace Qiniu.Pili
 
             try
             {
-                var resp = _cli.CallWithJsonAsync(path, json).Result;
+                var resp = _cli.CallWithJsonAsync(path, json).GetAwaiter().GetResult();
                 var ret = JsonConvert.DeserializeObject<SaveRetFull>(resp);
-                IDictionary<string, string> result = new Dictionary<string, string>();
-                result["persistentID"] = ret.PersistentId;
-                result["fname"] = ret.Fname;
+                IDictionary<string, string> result = new Dictionary<string, string>
+                {
+                    ["persistentID"] = ret.PersistentId,
+                    ["fname"] = ret.Fname
+                };
                 return result;
             }
             catch (PiliException)
@@ -194,7 +196,7 @@ namespace Qiniu.Pili
             var json = JsonConvert.SerializeObject(opts);
             try
             {
-                var resp = _cli.CallWithJsonAsync(path, json).Result;
+                var resp = _cli.CallWithJsonAsync(path, json).GetAwaiter().GetResult();
                 var ret = JsonConvert.DeserializeObject<SnapshotRet>(resp);
                 return ret.Fname;
             }
@@ -257,7 +259,7 @@ namespace Qiniu.Pili
 
             try
             {
-                var resp = _cli.CallWithGetAsync(GenerateUrl()).Result;
+                var resp = _cli.CallWithGetAsync(GenerateUrl()).GetAwaiter().GetResult();
                 var ret = JsonConvert.DeserializeObject<HistoryRet>(resp);
                 return ret.Items;
             }

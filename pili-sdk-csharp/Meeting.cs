@@ -40,7 +40,7 @@ namespace Qiniu.Pili
 
             try
             {
-                var resp = _cli.CallWithJsonAsync(path, json).Result;
+                var resp = _cli.CallWithJsonAsync(path, json).GetAwaiter().GetResult();
                 var ret = JsonConvert.DeserializeObject<RoomName>(resp);
                 return ret.Name;
             }
@@ -59,7 +59,7 @@ namespace Qiniu.Pili
             var path = _baseUrl + "/rooms/" + roomName;
             try
             {
-                var resp = _cli.CallWithGetAsync(path).Result;
+                var resp = _cli.CallWithGetAsync(path).GetAwaiter().GetResult();
                 var room = JsonConvert.DeserializeObject<Room>(resp);
                 return room;
             }

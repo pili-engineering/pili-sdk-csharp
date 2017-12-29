@@ -34,12 +34,16 @@ namespace Qiniu.Pili
             var request = new HttpRequestMessage(HttpMethod.Post, uri) { Content = content };
             request.Headers.Add("Authorization", $"Qiniu {macToken}");
 
-            var response = await HttpClient.PostAsync(uri, content, cancellationToken);
+            var response = await HttpClient.SendAsync(request, cancellationToken);
 
             try
             {
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsStringAsync();
+            }
+            catch (HttpRequestException)
+            {
+                throw new PiliException(response);
             }
             catch (Exception e)
             {
@@ -62,6 +66,10 @@ namespace Qiniu.Pili
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsStringAsync();
             }
+            catch (HttpRequestException)
+            {
+                throw new PiliException(response);
+            }
             catch (Exception e)
             {
                 throw new PiliException(e);
@@ -82,6 +90,10 @@ namespace Qiniu.Pili
             {
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsStringAsync();
+            }
+            catch (HttpRequestException)
+            {
+                throw new PiliException(response);
             }
             catch (Exception e)
             {
